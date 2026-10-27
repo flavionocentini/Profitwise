@@ -10,3 +10,15 @@
 .settings {
     background-color: gray;
 }
+
+.daily {
+    background-color: lightblue;
+}
+
+.output {
+    background-color: lightgreen;
+}
+
+.save {
+    background-color: lightyellow;
+}

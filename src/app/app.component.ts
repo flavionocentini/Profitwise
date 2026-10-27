@@ -11,23 +11,52 @@ import { FormsModule } from '@angular/forms';
 })
 export class AppComponent {
   title = 'profitwise';
+
   orders = 0;
   adSpend = 0;
-  revenue = 19.99;
+  revenuePerOrder = 19.99;
   cogs = 3;
-  fees = 9;
-  commissions = 10;
-  vat = 20;
+  feesPercentage = 9;
+  commissionsPercentage = 10;
+  vatPercentage = 20;
   shipping = 4;
 
   get profit() {
-    let vat = this.vat / 100;
-    let fees = this.fees / 100;
-    let commissions = this.commissions / 100;
-    let totalVAT = this.revenue * (vat / (vat + 1));
-    let totalFees = this.revenue * fees;
-    let totalCommissions = this.revenue * commissions;
-    return this.revenue * this.orders - (this.cogs + totalVAT + totalFees + totalCommissions + this.shipping + this.adSpend);
+    
+    let vatValue = this.vatPercentage / 100;
+    let feesValue = this.feesPercentage / 100;
+    let commissionsValue = this.commissionsPercentage / 100;
+
+    let vat = this.revenuePerOrder * this.orders * (vatValue / (vatValue + 1));
+    let fees = this.revenuePerOrder * this.orders * feesValue;
+    let commissions = this.revenuePerOrder * this.orders * commissionsValue;
+
+    let profit = this.revenuePerOrder * this.orders - (this.cogs + vat + fees + commissions + this.shipping + this.adSpend);
+
+    if (this.orders === 0) {
+      return 0;
+    } else {
+      return profit;
+    }
+  }
+
+  get revenue() {
+    return this.revenuePerOrder * this.orders;
+  }
+
+  get profitMargin() {
+
+    let profitMargin = (this.profit / this.revenue) * 100;
+
+    if (this.orders === 0) {
+      return 0;
+    } else {
+      return profitMargin.toFixed(2);
+    }
+  }
+
+  onSettingsChange() {
+    console.log("Settings changed:", this.revenuePerOrder, this.cogs, this.feesPercentage, this.commissionsPercentage, this.vatPercentage, this.shipping);
   }
 
 }
