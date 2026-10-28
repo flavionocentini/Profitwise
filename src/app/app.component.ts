@@ -14,6 +14,7 @@ export class AppComponent {
 
   orders = 0;
   adSpend = 0;
+
   revenuePerOrder = 19.99;
   cogs = 3;
   feesPercentage = 9;
