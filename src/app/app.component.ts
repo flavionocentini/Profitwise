@@ -3,6 +3,16 @@ import { RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 
+type Settings = {
+  id: number;
+  revenue_per_order: number;
+  cogs: number;
+  fees_percentage: number;
+  commissions_percentage: number;
+  vat_percentage: number;
+  shipping: number;
+};
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -19,12 +29,12 @@ export class AppComponent implements OnInit {
   orders = 0;
   adSpend = 0;
 
-  revenuePerOrder = 19.99;
-  cogs = 3;
-  feesPercentage = 9;
-  commissionsPercentage = 10;
-  vatPercentage = 20;
-  shipping = 4;
+  revenuePerOrder = 0;
+  cogs = 0;
+  feesPercentage = 0;
+  commissionsPercentage = 0;
+  vatPercentage = 0;
+  shipping = 0;
 
   // Calculate profit
   get profit() {
@@ -63,14 +73,28 @@ export class AppComponent implements OnInit {
     }
   }
 
+  // Update settings using the API
   onSettingsChange() {
-    console.log("Settings changed:", this.revenuePerOrder, this.cogs, this.feesPercentage, this.commissionsPercentage, this.vatPercentage, this.shipping);
+    //console.log("Settings changed:", this.revenuePerOrder, this.cogs, this.feesPercentage, this.commissionsPercentage, this.vatPercentage, this.shipping);
+    this.http.patch('http://localhost:8787/settings', {
+      revenue_per_order: this.revenuePerOrder,
+      cogs: this.cogs,
+      fees_percentage: this.feesPercentage,
+      commissions_percentage: this.commissionsPercentage,
+      vat_percentage: this.vatPercentage,
+      shipping: this.shipping
+    }).subscribe();
   }
 
   // Fetch settings from the API
   ngOnInit() {
-    this.http.get('http://localhost:8787/settings').subscribe(data => {
-      console.log(data);
+    this.http.get<Settings>('http://localhost:8787/settings').subscribe(data => {
+      this.revenuePerOrder = data.revenue_per_order;
+      this.cogs = data.cogs;
+      this.feesPercentage = data.fees_percentage;
+      this.commissionsPercentage = data.commissions_percentage;
+      this.vatPercentage = data.vat_percentage;
+      this.shipping = data.shipping;
     });
   }
 
