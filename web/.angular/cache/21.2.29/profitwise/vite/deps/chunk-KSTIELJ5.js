@@ -1,29 +1,32 @@
 import {
   withHttpTransferCache
-} from "./chunk-CAKXXIQK.js";
+} from "./chunk-UV2DE6BS.js";
 import {
   CommonModule,
-  DOCUMENT,
+  PLATFORM_BROWSER_ID
+} from "./chunk-NFJTLIFE.js";
+import {
   DomAdapter,
-  PLATFORM_BROWSER_ID,
   XhrFactory,
   getDOM,
-  isPlatformServer,
   parseCookieValue,
   setRootDomAdapter
-} from "./chunk-36R7ME4L.js";
+} from "./chunk-TLTOPXK5.js";
 import {
   APP_ID,
   ApplicationModule,
   ApplicationRef,
   CSP_NONCE,
   Console,
+  DOCUMENT,
   ENVIRONMENT_INITIALIZER,
   ErrorHandler,
   INJECTOR_SCOPE,
+  IS_ENABLED_BLOCKING_INITIAL_NAVIGATION,
   Inject,
   Injectable,
   InjectionToken,
+  Injector,
   NgModule,
   NgZone,
   Optional,
@@ -33,20 +36,17 @@ import {
   RendererStyleFlags2,
   RuntimeError,
   SecurityContext,
-  SkipSelf,
   TESTABILITY,
   TESTABILITY_GETTER,
   Testability,
-  TestabilityRegistry,
-  TransferState,
+  TracingService,
   Version,
-  ViewEncapsulation$1,
+  ViewEncapsulation,
   XSS_SECURITY_URL,
-  __spreadProps,
-  __spreadValues,
   _global,
   _sanitizeHtml,
   _sanitizeUrl,
+  allLeavingAnimations,
   allowSanitizationBypassAndThrow,
   bypassSanitizationTrustHtml,
   bypassSanitizationTrustResourceUrl,
@@ -59,193 +59,90 @@ import {
   inject,
   internalCreateApplication,
   makeEnvironmentProviders,
-  makeStateKey,
   platformCore,
+  provideStabilityDebugging,
   setClassMetadata,
   setDocument,
   unwrapSafeValue,
   withDomHydration,
+  withEventReplay,
+  withI18nSupport,
+  withIncrementalHydration,
   ɵɵdefineInjectable,
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
   ɵɵinject
-} from "./chunk-6DT2DWOU.js";
+} from "./chunk-ONCSWEXL.js";
+import {
+  __async,
+  __spreadValues
+} from "./chunk-WDMUDEB6.js";
 
-// node_modules/@angular/platform-browser/fesm2022/platform-browser.mjs
-var GenericBrowserDomAdapter = class extends DomAdapter {
-  constructor() {
-    super(...arguments);
-    this.supportsDOMEvents = true;
+// node_modules/@angular/platform-browser/fesm2022/_dom_renderer-chunk.mjs
+var EventManagerPlugin = class {
+  _doc;
+  constructor(_doc) {
+    this._doc = _doc;
   }
+  manager;
 };
-var BrowserDomAdapter = class _BrowserDomAdapter extends GenericBrowserDomAdapter {
-  static makeCurrent() {
-    setRootDomAdapter(new _BrowserDomAdapter());
+var DomEventsPlugin = class _DomEventsPlugin extends EventManagerPlugin {
+  constructor(doc) {
+    super(doc);
   }
-  onAndCancel(el, evt, listener) {
-    el.addEventListener(evt, listener);
-    return () => {
-      el.removeEventListener(evt, listener);
-    };
+  supports(eventName) {
+    return true;
   }
-  dispatchEvent(el, evt) {
-    el.dispatchEvent(evt);
+  addEventListener(element, eventName, handler, options) {
+    element.addEventListener(eventName, handler, options);
+    return () => this.removeEventListener(element, eventName, handler, options);
   }
-  remove(node) {
-    if (node.parentNode) {
-      node.parentNode.removeChild(node);
-    }
+  removeEventListener(target, eventName, callback, options) {
+    return target.removeEventListener(eventName, callback, options);
   }
-  createElement(tagName, doc) {
-    doc = doc || this.getDefaultDocument();
-    return doc.createElement(tagName);
-  }
-  createHtmlDocument() {
-    return document.implementation.createHTMLDocument("fakeTitle");
-  }
-  getDefaultDocument() {
-    return document;
-  }
-  isElementNode(node) {
-    return node.nodeType === Node.ELEMENT_NODE;
-  }
-  isShadowRoot(node) {
-    return node instanceof DocumentFragment;
-  }
-  /** @deprecated No longer being used in Ivy code. To be removed in version 14. */
-  getGlobalEventTarget(doc, target) {
-    if (target === "window") {
-      return window;
-    }
-    if (target === "document") {
-      return doc;
-    }
-    if (target === "body") {
-      return doc.body;
-    }
-    return null;
-  }
-  getBaseHref(doc) {
-    const href = getBaseElementHref();
-    return href == null ? null : relativePath(href);
-  }
-  resetBaseElement() {
-    baseElement = null;
-  }
-  getUserAgent() {
-    return window.navigator.userAgent;
-  }
-  getCookie(name) {
-    return parseCookieValue(document.cookie, name);
-  }
-};
-var baseElement = null;
-function getBaseElementHref() {
-  baseElement = baseElement || document.querySelector("base");
-  return baseElement ? baseElement.getAttribute("href") : null;
-}
-function relativePath(url) {
-  return new URL(url, document.baseURI).pathname;
-}
-var BrowserGetTestability = class {
-  addToWindow(registry) {
-    _global["getAngularTestability"] = (elem, findInAncestors = true) => {
-      const testability = registry.findTestabilityInTree(elem, findInAncestors);
-      if (testability == null) {
-        throw new RuntimeError(5103, (typeof ngDevMode === "undefined" || ngDevMode) && "Could not find testability for element.");
-      }
-      return testability;
-    };
-    _global["getAllAngularTestabilities"] = () => registry.getAllTestabilities();
-    _global["getAllAngularRootElements"] = () => registry.getAllRootElements();
-    const whenAllStable = (callback) => {
-      const testabilities = _global["getAllAngularTestabilities"]();
-      let count = testabilities.length;
-      const decrement = function() {
-        count--;
-        if (count == 0) {
-          callback();
-        }
-      };
-      testabilities.forEach((testability) => {
-        testability.whenStable(decrement);
-      });
-    };
-    if (!_global["frameworkStabilizers"]) {
-      _global["frameworkStabilizers"] = [];
-    }
-    _global["frameworkStabilizers"].push(whenAllStable);
-  }
-  findTestabilityInTree(registry, elem, findInAncestors) {
-    if (elem == null) {
-      return null;
-    }
-    const t = registry.getTestability(elem);
-    if (t != null) {
-      return t;
-    } else if (!findInAncestors) {
-      return null;
-    }
-    if (getDOM().isShadowRoot(elem)) {
-      return this.findTestabilityInTree(registry, elem.host, true);
-    }
-    return this.findTestabilityInTree(registry, elem.parentElement, true);
-  }
-};
-var BrowserXhr = class _BrowserXhr {
-  build() {
-    return new XMLHttpRequest();
-  }
-  static {
-    this.ɵfac = function BrowserXhr_Factory(t) {
-      return new (t || _BrowserXhr)();
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _BrowserXhr,
-      factory: _BrowserXhr.ɵfac
-    });
-  }
+  static ɵfac = function DomEventsPlugin_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _DomEventsPlugin)(ɵɵinject(DOCUMENT));
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _DomEventsPlugin,
+    factory: _DomEventsPlugin.ɵfac
+  });
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BrowserXhr, [{
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DomEventsPlugin, [{
     type: Injectable
-  }], null, null);
+  }], () => [{
+    type: void 0,
+    decorators: [{
+      type: Inject,
+      args: [DOCUMENT]
+    }]
+  }], null);
 })();
-var EVENT_MANAGER_PLUGINS = new InjectionToken(ngDevMode ? "EventManagerPlugins" : "");
+var EVENT_MANAGER_PLUGINS = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "EventManagerPlugins" : "");
 var EventManager = class _EventManager {
-  /**
-   * Initializes an instance of the event-manager service.
-   */
+  _zone;
+  _plugins;
+  _eventNameToPlugin = /* @__PURE__ */ new Map();
   constructor(plugins, _zone) {
     this._zone = _zone;
-    this._eventNameToPlugin = /* @__PURE__ */ new Map();
     plugins.forEach((plugin) => {
       plugin.manager = this;
     });
-    this._plugins = plugins.slice().reverse();
+    const otherPlugins = plugins.filter((p) => !(p instanceof DomEventsPlugin));
+    this._plugins = otherPlugins.slice().reverse();
+    const domEventPlugin = plugins.find((p) => p instanceof DomEventsPlugin);
+    if (domEventPlugin) {
+      this._plugins.push(domEventPlugin);
+    }
   }
-  /**
-   * Registers a handler for a specific element and event.
-   *
-   * @param element The HTML element to receive event notifications.
-   * @param eventName The name of the event to listen for.
-   * @param handler A function to call when the notification occurs. Receives the
-   * event object as an argument.
-   * @returns  A callback function that can be used to remove the handler.
-   */
-  addEventListener(element, eventName, handler) {
+  addEventListener(element, eventName, handler, options) {
     const plugin = this._findPluginFor(eventName);
-    return plugin.addEventListener(element, eventName, handler);
+    return plugin.addEventListener(element, eventName, handler, options);
   }
-  /**
-   * Retrieves the compilation zone in which event listeners are registered.
-   */
   getZone() {
     return this._zone;
   }
-  /** @internal */
   _findPluginFor(eventName) {
     let plugin = this._eventNameToPlugin.get(eventName);
     if (plugin) {
@@ -259,17 +156,13 @@ var EventManager = class _EventManager {
     this._eventNameToPlugin.set(eventName, plugin);
     return plugin;
   }
-  static {
-    this.ɵfac = function EventManager_Factory(t) {
-      return new (t || _EventManager)(ɵɵinject(EVENT_MANAGER_PLUGINS), ɵɵinject(NgZone));
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _EventManager,
-      factory: _EventManager.ɵfac
-    });
-  }
+  static ɵfac = function EventManager_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _EventManager)(ɵɵinject(EVENT_MANAGER_PLUGINS), ɵɵinject(NgZone));
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _EventManager,
+    factory: _EventManager.ɵfac
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(EventManager, [{
@@ -284,152 +177,132 @@ var EventManager = class _EventManager {
     type: NgZone
   }], null);
 })();
-var EventManagerPlugin = class {
-  // TODO: remove (has some usage in G3)
-  constructor(_doc) {
-    this._doc = _doc;
-  }
-};
 var APP_ID_ATTRIBUTE_NAME = "ng-app-id";
+function removeElements(elements) {
+  for (const element of elements) {
+    element.remove();
+  }
+}
+function createStyleElement(style, doc) {
+  const styleElement = doc.createElement("style");
+  styleElement.textContent = style;
+  return styleElement;
+}
+function addServerStyles(doc, appId, inline, external) {
+  const elements = doc.head?.querySelectorAll(`style[${APP_ID_ATTRIBUTE_NAME}="${appId}"],link[${APP_ID_ATTRIBUTE_NAME}="${appId}"]`);
+  if (elements) {
+    for (const styleElement of elements) {
+      styleElement.removeAttribute(APP_ID_ATTRIBUTE_NAME);
+      if (styleElement instanceof HTMLLinkElement) {
+        external.set(styleElement.href.slice(styleElement.href.lastIndexOf("/") + 1), {
+          usage: 0,
+          elements: [styleElement]
+        });
+      } else if (styleElement.textContent) {
+        inline.set(styleElement.textContent, {
+          usage: 0,
+          elements: [styleElement]
+        });
+      }
+    }
+  }
+}
+function createLinkElement(url, doc) {
+  const linkElement = doc.createElement("link");
+  linkElement.setAttribute("rel", "stylesheet");
+  linkElement.setAttribute("href", url);
+  return linkElement;
+}
 var SharedStylesHost = class _SharedStylesHost {
+  doc;
+  appId;
+  nonce;
+  inline = /* @__PURE__ */ new Map();
+  external = /* @__PURE__ */ new Map();
+  hosts = /* @__PURE__ */ new Set();
   constructor(doc, appId, nonce, platformId = {}) {
     this.doc = doc;
     this.appId = appId;
     this.nonce = nonce;
-    this.platformId = platformId;
-    this.styleRef = /* @__PURE__ */ new Map();
-    this.hostNodes = /* @__PURE__ */ new Set();
-    this.styleNodesInDOM = this.collectServerRenderedStyles();
-    this.platformIsServer = isPlatformServer(platformId);
-    this.resetHostNodes();
+    addServerStyles(doc, appId, this.inline, this.external);
+    this.hosts.add(doc.head);
   }
-  addStyles(styles) {
-    for (const style of styles) {
-      const usageCount = this.changeUsageCount(style, 1);
-      if (usageCount === 1) {
-        this.onStyleAdded(style);
+  addStyles(styles, urls) {
+    for (const value of styles) {
+      this.addUsage(value, this.inline, createStyleElement);
+    }
+    urls?.forEach((value) => this.addUsage(value, this.external, createLinkElement));
+  }
+  removeStyles(styles, urls) {
+    for (const value of styles) {
+      this.removeUsage(value, this.inline);
+    }
+    urls?.forEach((value) => this.removeUsage(value, this.external));
+  }
+  addUsage(value, usages, creator) {
+    const record = usages.get(value);
+    if (record) {
+      if ((typeof ngDevMode === "undefined" || ngDevMode) && record.usage === 0) {
+        record.elements.forEach((element) => element.setAttribute("ng-style-reused", ""));
       }
+      record.usage++;
+    } else {
+      usages.set(value, {
+        usage: 1,
+        elements: [...this.hosts].map((host) => this.addElement(host, creator(value, this.doc)))
+      });
     }
   }
-  removeStyles(styles) {
-    for (const style of styles) {
-      const usageCount = this.changeUsageCount(style, -1);
-      if (usageCount <= 0) {
-        this.onStyleRemoved(style);
+  removeUsage(value, usages) {
+    const record = usages.get(value);
+    if (record) {
+      record.usage--;
+      if (record.usage <= 0) {
+        removeElements(record.elements);
+        usages.delete(value);
       }
     }
   }
   ngOnDestroy() {
-    const styleNodesInDOM = this.styleNodesInDOM;
-    if (styleNodesInDOM) {
-      styleNodesInDOM.forEach((node) => node.remove());
-      styleNodesInDOM.clear();
+    for (const [, {
+      elements
+    }] of [...this.inline, ...this.external]) {
+      removeElements(elements);
     }
-    for (const style of this.getAllStyles()) {
-      this.onStyleRemoved(style);
-    }
-    this.resetHostNodes();
+    this.hosts.clear();
   }
   addHost(hostNode) {
-    this.hostNodes.add(hostNode);
-    for (const style of this.getAllStyles()) {
-      this.addStyleToHost(hostNode, style);
+    this.hosts.add(hostNode);
+    for (const [style, {
+      elements
+    }] of this.inline) {
+      elements.push(this.addElement(hostNode, createStyleElement(style, this.doc)));
+    }
+    for (const [url, {
+      elements
+    }] of this.external) {
+      elements.push(this.addElement(hostNode, createLinkElement(url, this.doc)));
     }
   }
   removeHost(hostNode) {
-    this.hostNodes.delete(hostNode);
+    this.hosts.delete(hostNode);
   }
-  getAllStyles() {
-    return this.styleRef.keys();
-  }
-  onStyleAdded(style) {
-    for (const host of this.hostNodes) {
-      this.addStyleToHost(host, style);
+  addElement(host, element) {
+    if (this.nonce) {
+      element.setAttribute("nonce", this.nonce);
     }
-  }
-  onStyleRemoved(style) {
-    const styleRef = this.styleRef;
-    styleRef.get(style)?.elements?.forEach((node) => node.remove());
-    styleRef.delete(style);
-  }
-  collectServerRenderedStyles() {
-    const styles = this.doc.head?.querySelectorAll(`style[${APP_ID_ATTRIBUTE_NAME}="${this.appId}"]`);
-    if (styles?.length) {
-      const styleMap = /* @__PURE__ */ new Map();
-      styles.forEach((style) => {
-        if (style.textContent != null) {
-          styleMap.set(style.textContent, style);
-        }
-      });
-      return styleMap;
+    if (false) {
+      element.setAttribute(APP_ID_ATTRIBUTE_NAME, this.appId);
     }
-    return null;
+    return host.appendChild(element);
   }
-  changeUsageCount(style, delta) {
-    const map = this.styleRef;
-    if (map.has(style)) {
-      const styleRefValue = map.get(style);
-      styleRefValue.usage += delta;
-      return styleRefValue.usage;
-    }
-    map.set(style, {
-      usage: delta,
-      elements: []
-    });
-    return delta;
-  }
-  getStyleElement(host, style) {
-    const styleNodesInDOM = this.styleNodesInDOM;
-    const styleEl = styleNodesInDOM?.get(style);
-    if (styleEl?.parentNode === host) {
-      styleNodesInDOM.delete(style);
-      styleEl.removeAttribute(APP_ID_ATTRIBUTE_NAME);
-      if (typeof ngDevMode === "undefined" || ngDevMode) {
-        styleEl.setAttribute("ng-style-reused", "");
-      }
-      return styleEl;
-    } else {
-      const styleEl2 = this.doc.createElement("style");
-      if (this.nonce) {
-        styleEl2.setAttribute("nonce", this.nonce);
-      }
-      styleEl2.textContent = style;
-      if (this.platformIsServer) {
-        styleEl2.setAttribute(APP_ID_ATTRIBUTE_NAME, this.appId);
-      }
-      host.appendChild(styleEl2);
-      return styleEl2;
-    }
-  }
-  addStyleToHost(host, style) {
-    const styleEl = this.getStyleElement(host, style);
-    const styleRef = this.styleRef;
-    const styleElRef = styleRef.get(style)?.elements;
-    if (styleElRef) {
-      styleElRef.push(styleEl);
-    } else {
-      styleRef.set(style, {
-        elements: [styleEl],
-        usage: 1
-      });
-    }
-  }
-  resetHostNodes() {
-    const hostNodes = this.hostNodes;
-    hostNodes.clear();
-    hostNodes.add(this.doc.head);
-  }
-  static {
-    this.ɵfac = function SharedStylesHost_Factory(t) {
-      return new (t || _SharedStylesHost)(ɵɵinject(DOCUMENT), ɵɵinject(APP_ID), ɵɵinject(CSP_NONCE, 8), ɵɵinject(PLATFORM_ID));
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _SharedStylesHost,
-      factory: _SharedStylesHost.ɵfac
-    });
-  }
+  static ɵfac = function SharedStylesHost_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _SharedStylesHost)(ɵɵinject(DOCUMENT), ɵɵinject(APP_ID), ɵɵinject(CSP_NONCE, 8), ɵɵinject(PLATFORM_ID));
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _SharedStylesHost,
+    factory: _SharedStylesHost.ɵfac
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SharedStylesHost, [{
@@ -468,15 +341,16 @@ var NAMESPACE_URIS = {
   "xlink": "http://www.w3.org/1999/xlink",
   "xml": "http://www.w3.org/XML/1998/namespace",
   "xmlns": "http://www.w3.org/2000/xmlns/",
-  "math": "http://www.w3.org/1998/MathML/"
+  "math": "http://www.w3.org/1998/Math/MathML"
 };
 var COMPONENT_REGEX = /%COMP%/g;
+var SOURCEMAP_URL_REGEXP = /\/\*#\s*sourceMappingURL=(.+?)\s*\*\//;
+var PROTOCOL_REGEXP = /^https?:/;
 var COMPONENT_VARIABLE = "%COMP%";
 var HOST_ATTR = `_nghost-${COMPONENT_VARIABLE}`;
 var CONTENT_ATTR = `_ngcontent-${COMPONENT_VARIABLE}`;
 var REMOVE_STYLES_ON_COMPONENT_DESTROY_DEFAULT = true;
-var REMOVE_STYLES_ON_COMPONENT_DESTROY = new InjectionToken(ngDevMode ? "RemoveStylesOnCompDestroy" : "", {
-  providedIn: "root",
+var REMOVE_STYLES_ON_COMPONENT_DESTROY = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "RemoveStylesOnCompDestroy" : "", {
   factory: () => REMOVE_STYLES_ON_COMPONENT_DESTROY_DEFAULT
 });
 function shimContentAttribute(componentShortId) {
@@ -488,27 +362,55 @@ function shimHostAttribute(componentShortId) {
 function shimStylesContent(compId, styles) {
   return styles.map((s) => s.replace(COMPONENT_REGEX, compId));
 }
+function addBaseHrefToCssSourceMap(baseHref, styles) {
+  if (!baseHref) {
+    return styles;
+  }
+  const absoluteBaseHrefUrl = new URL(baseHref, "http://localhost");
+  return styles.map((cssContent) => {
+    if (!cssContent.includes("sourceMappingURL=")) {
+      return cssContent;
+    }
+    return cssContent.replace(SOURCEMAP_URL_REGEXP, (_, sourceMapUrl) => {
+      if (sourceMapUrl[0] === "/" || sourceMapUrl.startsWith("data:") || PROTOCOL_REGEXP.test(sourceMapUrl)) {
+        return `/*# sourceMappingURL=${sourceMapUrl} */`;
+      }
+      const {
+        pathname: resolvedSourceMapUrl
+      } = new URL(sourceMapUrl, absoluteBaseHrefUrl);
+      return `/*# sourceMappingURL=${resolvedSourceMapUrl} */`;
+    });
+  });
+}
 var DomRendererFactory2 = class _DomRendererFactory2 {
-  constructor(eventManager, sharedStylesHost, appId, removeStylesOnCompDestroy, doc, platformId, ngZone, nonce = null) {
+  eventManager;
+  sharedStylesHost;
+  appId;
+  removeStylesOnCompDestroy;
+  doc;
+  ngZone;
+  nonce;
+  tracingService;
+  rendererByCompId = /* @__PURE__ */ new Map();
+  defaultRenderer;
+  constructor(eventManager, sharedStylesHost, appId, removeStylesOnCompDestroy, doc, ngZone, nonce = null, tracingService = null) {
     this.eventManager = eventManager;
     this.sharedStylesHost = sharedStylesHost;
     this.appId = appId;
     this.removeStylesOnCompDestroy = removeStylesOnCompDestroy;
     this.doc = doc;
-    this.platformId = platformId;
     this.ngZone = ngZone;
     this.nonce = nonce;
-    this.rendererByCompId = /* @__PURE__ */ new Map();
-    this.platformIsServer = isPlatformServer(platformId);
-    this.defaultRenderer = new DefaultDomRenderer2(eventManager, doc, ngZone, this.platformIsServer);
+    this.tracingService = tracingService;
+    this.defaultRenderer = new DefaultDomRenderer2(eventManager, doc, ngZone, this.tracingService);
   }
   createRenderer(element, type) {
     if (!element || !type) {
       return this.defaultRenderer;
     }
-    if (this.platformIsServer && type.encapsulation === ViewEncapsulation$1.ShadowDom) {
+    if (false) {
       type = __spreadProps(__spreadValues({}, type), {
-        encapsulation: ViewEncapsulation$1.Emulated
+        encapsulation: ViewEncapsulation.Emulated
       });
     }
     const renderer = this.getOrCreateRenderer(element, type);
@@ -528,15 +430,17 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
       const eventManager = this.eventManager;
       const sharedStylesHost = this.sharedStylesHost;
       const removeStylesOnCompDestroy = this.removeStylesOnCompDestroy;
-      const platformIsServer = this.platformIsServer;
+      const tracingService = this.tracingService;
       switch (type.encapsulation) {
-        case ViewEncapsulation$1.Emulated:
-          renderer = new EmulatedEncapsulationDomRenderer2(eventManager, sharedStylesHost, type, this.appId, removeStylesOnCompDestroy, doc, ngZone, platformIsServer);
+        case ViewEncapsulation.Emulated:
+          renderer = new EmulatedEncapsulationDomRenderer2(eventManager, sharedStylesHost, type, this.appId, removeStylesOnCompDestroy, doc, ngZone, tracingService);
           break;
-        case ViewEncapsulation$1.ShadowDom:
-          return new ShadowDomRenderer(eventManager, sharedStylesHost, element, type, doc, ngZone, this.nonce, platformIsServer);
+        case ViewEncapsulation.ShadowDom:
+          return new ShadowDomRenderer(eventManager, element, type, doc, ngZone, this.nonce, tracingService, sharedStylesHost);
+        case ViewEncapsulation.ExperimentalIsolatedShadowDom:
+          return new ShadowDomRenderer(eventManager, element, type, doc, ngZone, this.nonce, tracingService);
         default:
-          renderer = new NoneEncapsulationDomRenderer(eventManager, sharedStylesHost, type, removeStylesOnCompDestroy, doc, ngZone, platformIsServer);
+          renderer = new NoneEncapsulationDomRenderer(eventManager, sharedStylesHost, type, removeStylesOnCompDestroy, doc, ngZone, tracingService);
           break;
       }
       rendererByCompId.set(type.id, renderer);
@@ -546,17 +450,16 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
   ngOnDestroy() {
     this.rendererByCompId.clear();
   }
-  static {
-    this.ɵfac = function DomRendererFactory2_Factory(t) {
-      return new (t || _DomRendererFactory2)(ɵɵinject(EventManager), ɵɵinject(SharedStylesHost), ɵɵinject(APP_ID), ɵɵinject(REMOVE_STYLES_ON_COMPONENT_DESTROY), ɵɵinject(DOCUMENT), ɵɵinject(PLATFORM_ID), ɵɵinject(NgZone), ɵɵinject(CSP_NONCE));
-    };
+  componentReplaced(componentId) {
+    this.rendererByCompId.delete(componentId);
   }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _DomRendererFactory2,
-      factory: _DomRendererFactory2.ɵfac
-    });
-  }
+  static ɵfac = function DomRendererFactory2_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _DomRendererFactory2)(ɵɵinject(EventManager), ɵɵinject(SharedStylesHost), ɵɵinject(APP_ID), ɵɵinject(REMOVE_STYLES_ON_COMPONENT_DESTROY), ɵɵinject(DOCUMENT), ɵɵinject(NgZone), ɵɵinject(CSP_NONCE), ɵɵinject(TracingService, 8));
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _DomRendererFactory2,
+    factory: _DomRendererFactory2.ɵfac
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DomRendererFactory2, [{
@@ -584,12 +487,6 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
       args: [DOCUMENT]
     }]
   }, {
-    type: Object,
-    decorators: [{
-      type: Inject,
-      args: [PLATFORM_ID]
-    }]
-  }, {
     type: NgZone
   }, {
     type: void 0,
@@ -597,20 +494,32 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
       type: Inject,
       args: [CSP_NONCE]
     }]
+  }, {
+    type: TracingService,
+    decorators: [{
+      type: Inject,
+      args: [TracingService]
+    }, {
+      type: Optional
+    }]
   }], null);
 })();
 var DefaultDomRenderer2 = class {
-  constructor(eventManager, doc, ngZone, platformIsServer) {
+  eventManager;
+  doc;
+  ngZone;
+  tracingService;
+  data = /* @__PURE__ */ Object.create(null);
+  throwOnSyntheticProps = true;
+  constructor(eventManager, doc, ngZone, tracingService) {
     this.eventManager = eventManager;
     this.doc = doc;
     this.ngZone = ngZone;
-    this.platformIsServer = platformIsServer;
-    this.data = /* @__PURE__ */ Object.create(null);
-    this.throwOnSyntheticProps = true;
-    this.destroyNode = null;
+    this.tracingService = tracingService;
   }
   destroy() {
   }
+  destroyNode = null;
   createElement(name, namespace) {
     if (namespace) {
       return this.doc.createElementNS(NAMESPACE_URIS[namespace] || namespace, name);
@@ -633,10 +542,8 @@ var DefaultDomRenderer2 = class {
       targetParent.insertBefore(newChild, refChild);
     }
   }
-  removeChild(parent, oldChild) {
-    if (parent) {
-      parent.removeChild(oldChild);
-    }
+  removeChild(_parent, oldChild) {
+    oldChild.remove();
   }
   selectRootElement(selectorOrNode, preserveContent) {
     let el = typeof selectorOrNode === "string" ? this.doc.querySelector(selectorOrNode) : selectorOrNode;
@@ -709,22 +616,26 @@ var DefaultDomRenderer2 = class {
   setValue(node, value) {
     node.nodeValue = value;
   }
-  listen(target, event, callback) {
+  listen(target, event, callback, options) {
     (typeof ngDevMode === "undefined" || ngDevMode) && this.throwOnSyntheticProps && checkNoSyntheticProp(event, "listener");
     if (typeof target === "string") {
       target = getDOM().getGlobalEventTarget(this.doc, target);
       if (!target) {
-        throw new Error(`Unsupported event target ${target} for event ${event}`);
+        throw new RuntimeError(5102, (typeof ngDevMode === "undefined" || ngDevMode) && `Unsupported event target ${target} for event ${event}`);
       }
     }
-    return this.eventManager.addEventListener(target, event, this.decoratePreventDefault(callback));
+    let wrappedCallback = this.decoratePreventDefault(callback);
+    if (this.tracingService?.wrapEventListener) {
+      wrappedCallback = this.tracingService.wrapEventListener(target, event, wrappedCallback);
+    }
+    return this.eventManager.addEventListener(target, event, wrappedCallback, options);
   }
   decoratePreventDefault(eventHandler) {
     return (event) => {
       if (event === "__ngUnwrap__") {
         return eventHandler;
       }
-      const allowDefaultBehavior = this.platformIsServer ? this.ngZone.runGuarded(() => eventHandler(event)) : eventHandler(event);
+      const allowDefaultBehavior = false ? this.ngZone.runGuarded(() => eventHandler(event)) : eventHandler(event);
       if (allowDefaultBehavior === false) {
         event.preventDefault();
       }
@@ -736,23 +647,33 @@ var AT_CHARCODE = (() => "@".charCodeAt(0))();
 function checkNoSyntheticProp(name, nameKind) {
   if (name.charCodeAt(0) === AT_CHARCODE) {
     throw new RuntimeError(5105, `Unexpected synthetic ${nameKind} ${name} found. Please make sure that:
-  - Either \`BrowserAnimationsModule\` or \`NoopAnimationsModule\` are imported in your application.
-  - There is corresponding configuration for the animation named \`${name}\` defined in the \`animations\` field of the \`@Component\` decorator (see https://angular.io/api/core/Component#animations).`);
+  - Make sure \`provideAnimationsAsync()\`, \`provideAnimations()\` or \`provideNoopAnimations()\` call was added to a list of providers used to bootstrap an application.
+  - There is a corresponding animation configuration named \`${name}\` defined in the \`animations\` field of the \`@Component\` decorator (see https://angular.dev/api/core/Component#animations).`);
   }
 }
 function isTemplateNode(node) {
   return node.tagName === "TEMPLATE" && node.content !== void 0;
 }
 var ShadowDomRenderer = class extends DefaultDomRenderer2 {
-  constructor(eventManager, sharedStylesHost, hostEl, component, doc, ngZone, nonce, platformIsServer) {
-    super(eventManager, doc, ngZone, platformIsServer);
-    this.sharedStylesHost = sharedStylesHost;
+  hostEl;
+  sharedStylesHost;
+  shadowRoot;
+  constructor(eventManager, hostEl, component, doc, ngZone, nonce, tracingService, sharedStylesHost) {
+    super(eventManager, doc, ngZone, tracingService);
     this.hostEl = hostEl;
+    this.sharedStylesHost = sharedStylesHost;
     this.shadowRoot = hostEl.attachShadow({
       mode: "open"
     });
-    this.sharedStylesHost.addHost(this.shadowRoot);
-    const styles = shimStylesContent(component.id, component.styles);
+    if (this.sharedStylesHost) {
+      this.sharedStylesHost.addHost(this.shadowRoot);
+    }
+    let styles = component.styles;
+    if (ngDevMode) {
+      const baseHref = getDOM().getBaseHref(doc) ?? "";
+      styles = addBaseHrefToCssSourceMap(baseHref, styles);
+    }
+    styles = shimStylesContent(component.id, styles);
     for (const style of styles) {
       const styleEl = document.createElement("style");
       if (nonce) {
@@ -760,6 +681,16 @@ var ShadowDomRenderer = class extends DefaultDomRenderer2 {
       }
       styleEl.textContent = style;
       this.shadowRoot.appendChild(styleEl);
+    }
+    const styleUrls = component.getExternalStyles?.();
+    if (styleUrls) {
+      for (const styleUrl of styleUrls) {
+        const linkEl = createLinkElement(styleUrl, doc);
+        if (nonce) {
+          linkEl.setAttribute("nonce", nonce);
+        }
+        this.shadowRoot.appendChild(linkEl);
+      }
     }
   }
   nodeOrShadowRoot(node) {
@@ -771,37 +702,53 @@ var ShadowDomRenderer = class extends DefaultDomRenderer2 {
   insertBefore(parent, newChild, refChild) {
     return super.insertBefore(this.nodeOrShadowRoot(parent), newChild, refChild);
   }
-  removeChild(parent, oldChild) {
-    return super.removeChild(this.nodeOrShadowRoot(parent), oldChild);
+  removeChild(_parent, oldChild) {
+    return super.removeChild(null, oldChild);
   }
   parentNode(node) {
     return this.nodeOrShadowRoot(super.parentNode(this.nodeOrShadowRoot(node)));
   }
   destroy() {
-    this.sharedStylesHost.removeHost(this.shadowRoot);
+    if (this.sharedStylesHost) {
+      this.sharedStylesHost.removeHost(this.shadowRoot);
+    }
   }
 };
 var NoneEncapsulationDomRenderer = class extends DefaultDomRenderer2 {
-  constructor(eventManager, sharedStylesHost, component, removeStylesOnCompDestroy, doc, ngZone, platformIsServer, compId) {
-    super(eventManager, doc, ngZone, platformIsServer);
+  sharedStylesHost;
+  removeStylesOnCompDestroy;
+  styles;
+  styleUrls;
+  constructor(eventManager, sharedStylesHost, component, removeStylesOnCompDestroy, doc, ngZone, tracingService, compId) {
+    super(eventManager, doc, ngZone, tracingService);
     this.sharedStylesHost = sharedStylesHost;
     this.removeStylesOnCompDestroy = removeStylesOnCompDestroy;
-    this.styles = compId ? shimStylesContent(compId, component.styles) : component.styles;
+    let styles = component.styles;
+    if (ngDevMode) {
+      const baseHref = getDOM().getBaseHref(doc) ?? "";
+      styles = addBaseHrefToCssSourceMap(baseHref, styles);
+    }
+    this.styles = compId ? shimStylesContent(compId, styles) : styles;
+    this.styleUrls = component.getExternalStyles?.(compId);
   }
   applyStyles() {
-    this.sharedStylesHost.addStyles(this.styles);
+    this.sharedStylesHost.addStyles(this.styles, this.styleUrls);
   }
   destroy() {
     if (!this.removeStylesOnCompDestroy) {
       return;
     }
-    this.sharedStylesHost.removeStyles(this.styles);
+    if (allLeavingAnimations.size === 0) {
+      this.sharedStylesHost.removeStyles(this.styles, this.styleUrls);
+    }
   }
 };
 var EmulatedEncapsulationDomRenderer2 = class extends NoneEncapsulationDomRenderer {
-  constructor(eventManager, sharedStylesHost, component, appId, removeStylesOnCompDestroy, doc, ngZone, platformIsServer) {
+  contentAttr;
+  hostAttr;
+  constructor(eventManager, sharedStylesHost, component, appId, removeStylesOnCompDestroy, doc, ngZone, tracingService) {
     const compId = appId + "-" + component.id;
-    super(eventManager, sharedStylesHost, component, removeStylesOnCompDestroy, doc, ngZone, platformIsServer, compId);
+    super(eventManager, sharedStylesHost, component, removeStylesOnCompDestroy, doc, ngZone, tracingService, compId);
     this.contentAttr = shimContentAttribute(compId);
     this.hostAttr = shimHostAttribute(compId);
   }
@@ -815,44 +762,136 @@ var EmulatedEncapsulationDomRenderer2 = class extends NoneEncapsulationDomRender
     return el;
   }
 };
-var DomEventsPlugin = class _DomEventsPlugin extends EventManagerPlugin {
-  constructor(doc) {
-    super(doc);
+
+// node_modules/@angular/platform-browser/fesm2022/_browser-chunk.mjs
+var BrowserDomAdapter = class _BrowserDomAdapter extends DomAdapter {
+  supportsDOMEvents = true;
+  static makeCurrent() {
+    setRootDomAdapter(new _BrowserDomAdapter());
   }
-  // This plugin should come last in the list of plugins, because it accepts all
-  // events.
-  supports(eventName) {
-    return true;
-  }
-  addEventListener(element, eventName, handler) {
-    element.addEventListener(eventName, handler, false);
-    return () => this.removeEventListener(element, eventName, handler);
-  }
-  removeEventListener(target, eventName, callback) {
-    return target.removeEventListener(eventName, callback);
-  }
-  static {
-    this.ɵfac = function DomEventsPlugin_Factory(t) {
-      return new (t || _DomEventsPlugin)(ɵɵinject(DOCUMENT));
+  onAndCancel(el, evt, listener, options) {
+    el.addEventListener(evt, listener, options);
+    return () => {
+      el.removeEventListener(evt, listener, options);
     };
   }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _DomEventsPlugin,
-      factory: _DomEventsPlugin.ɵfac
-    });
+  dispatchEvent(el, evt) {
+    el.dispatchEvent(evt);
+  }
+  remove(node) {
+    node.remove();
+  }
+  createElement(tagName, doc) {
+    doc = doc || this.getDefaultDocument();
+    return doc.createElement(tagName);
+  }
+  createHtmlDocument() {
+    return document.implementation.createHTMLDocument("fakeTitle");
+  }
+  getDefaultDocument() {
+    return document;
+  }
+  isElementNode(node) {
+    return node.nodeType === Node.ELEMENT_NODE;
+  }
+  isShadowRoot(node) {
+    return node instanceof DocumentFragment;
+  }
+  getGlobalEventTarget(doc, target) {
+    if (target === "window") {
+      return window;
+    }
+    if (target === "document") {
+      return doc;
+    }
+    if (target === "body") {
+      return doc.body;
+    }
+    return null;
+  }
+  getBaseHref(doc) {
+    const href = getBaseElementHref();
+    return href == null ? null : relativePath(href);
+  }
+  resetBaseElement() {
+    baseElement = null;
+  }
+  getUserAgent() {
+    return window.navigator.userAgent;
+  }
+  getCookie(name) {
+    return parseCookieValue(document.cookie, name);
   }
 };
+var baseElement = null;
+function getBaseElementHref() {
+  baseElement = baseElement || document.head.querySelector("base");
+  return baseElement ? baseElement.getAttribute("href") : null;
+}
+function relativePath(url) {
+  return new URL(url, document.baseURI).pathname;
+}
+var BrowserGetTestability = class {
+  addToWindow(registry) {
+    _global["getAngularTestability"] = (elem, findInAncestors = true) => {
+      const testability = registry.findTestabilityInTree(elem, findInAncestors);
+      if (testability == null) {
+        throw new RuntimeError(5103, (typeof ngDevMode === "undefined" || ngDevMode) && "Could not find testability for element.");
+      }
+      return testability;
+    };
+    _global["getAllAngularTestabilities"] = () => registry.getAllTestabilities();
+    _global["getAllAngularRootElements"] = () => registry.getAllRootElements();
+    const whenAllStable = (callback) => {
+      const testabilities = _global["getAllAngularTestabilities"]();
+      let count = testabilities.length;
+      const decrement = function() {
+        count--;
+        if (count == 0) {
+          callback();
+        }
+      };
+      testabilities.forEach((testability) => {
+        testability.whenStable(decrement);
+      });
+    };
+    if (!_global["frameworkStabilizers"]) {
+      _global["frameworkStabilizers"] = [];
+    }
+    _global["frameworkStabilizers"].push(whenAllStable);
+  }
+  findTestabilityInTree(registry, elem, findInAncestors) {
+    if (elem == null) {
+      return null;
+    }
+    const t = registry.getTestability(elem);
+    if (t != null) {
+      return t;
+    } else if (!findInAncestors) {
+      return null;
+    }
+    if (getDOM().isShadowRoot(elem)) {
+      return this.findTestabilityInTree(registry, elem.host, true);
+    }
+    return this.findTestabilityInTree(registry, elem.parentElement, true);
+  }
+};
+var BrowserXhr = class _BrowserXhr {
+  build() {
+    return new XMLHttpRequest();
+  }
+  static ɵfac = function BrowserXhr_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _BrowserXhr)();
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _BrowserXhr,
+    factory: _BrowserXhr.ɵfac
+  });
+};
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DomEventsPlugin, [{
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BrowserXhr, [{
     type: Injectable
-  }], () => [{
-    type: void 0,
-    decorators: [{
-      type: Inject,
-      args: [DOCUMENT]
-    }]
-  }], null);
+  }], null, null);
 })();
 var MODIFIER_KEYS = ["alt", "control", "meta", "shift"];
 var _keyMap = {
@@ -877,45 +916,19 @@ var MODIFIER_KEY_GETTERS = {
   "shift": (event) => event.shiftKey
 };
 var KeyEventsPlugin = class _KeyEventsPlugin extends EventManagerPlugin {
-  /**
-   * Initializes an instance of the browser plug-in.
-   * @param doc The document in which key events will be detected.
-   */
   constructor(doc) {
     super(doc);
   }
-  /**
-   * Reports whether a named key event is supported.
-   * @param eventName The event name to query.
-   * @return True if the named key event is supported.
-   */
   supports(eventName) {
     return _KeyEventsPlugin.parseEventName(eventName) != null;
   }
-  /**
-   * Registers a handler for a specific element and key event.
-   * @param element The HTML element to receive event notifications.
-   * @param eventName The name of the key event to listen for.
-   * @param handler A function to call when the notification occurs. Receives the
-   * event object as an argument.
-   * @returns The key event that was registered.
-   */
-  addEventListener(element, eventName, handler) {
+  addEventListener(element, eventName, handler, options) {
     const parsedEvent = _KeyEventsPlugin.parseEventName(eventName);
     const outsideHandler = _KeyEventsPlugin.eventCallback(parsedEvent["fullKey"], handler, this.manager.getZone());
     return this.manager.getZone().runOutsideAngular(() => {
-      return getDOM().onAndCancel(element, parsedEvent["domEventName"], outsideHandler);
+      return getDOM().onAndCancel(element, parsedEvent["domEventName"], outsideHandler, options);
     });
   }
-  /**
-   * Parses the user provided full keyboard event definition and normalizes it for
-   * later internal use. It ensures the string is all lowercase, converts special
-   * characters to a standard spelling, and orders all the values consistently.
-   *
-   * @param eventName The name of the key event to listen for.
-   * @returns an object with the full, normalized string, and the dom event name
-   * or null in the case when the event doesn't match a keyboard event.
-   */
   static parseEventName(eventName) {
     const parts = eventName.toLowerCase().split(".");
     const domEventName = parts.shift();
@@ -945,16 +958,6 @@ var KeyEventsPlugin = class _KeyEventsPlugin extends EventManagerPlugin {
     result["fullKey"] = fullKey;
     return result;
   }
-  /**
-   * Determines whether the actual keys pressed match the configured key code string.
-   * The `fullKeyCode` event is normalized in the `parseEventName` method when the
-   * event is attached to the DOM during the `addEventListener` call. This is unseen
-   * by the end user and is normalized for internal consistency and parsing.
-   *
-   * @param event The keyboard event.
-   * @param fullKeyCode The normalized user defined expected key event string
-   * @returns boolean.
-   */
   static matchEventFullKeyCode(event, fullKeyCode) {
     let keycode = _keyMap[event.key] || event.key;
     let key = "";
@@ -980,13 +983,6 @@ var KeyEventsPlugin = class _KeyEventsPlugin extends EventManagerPlugin {
     key += keycode;
     return key === fullKeyCode;
   }
-  /**
-   * Configures a handler callback for a key event.
-   * @param fullKey The event name that combines all simultaneous keystrokes.
-   * @param handler The function that responds to the key event.
-   * @param zone The zone in which the event occurred.
-   * @returns A callback function.
-   */
   static eventCallback(fullKey, handler, zone) {
     return (event) => {
       if (_KeyEventsPlugin.matchEventFullKeyCode(event, fullKey)) {
@@ -994,21 +990,16 @@ var KeyEventsPlugin = class _KeyEventsPlugin extends EventManagerPlugin {
       }
     };
   }
-  /** @internal */
   static _normalizeKey(keyName) {
     return keyName === "esc" ? "escape" : keyName;
   }
-  static {
-    this.ɵfac = function KeyEventsPlugin_Factory(t) {
-      return new (t || _KeyEventsPlugin)(ɵɵinject(DOCUMENT));
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _KeyEventsPlugin,
-      factory: _KeyEventsPlugin.ɵfac
-    });
-  }
+  static ɵfac = function KeyEventsPlugin_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _KeyEventsPlugin)(ɵɵinject(DOCUMENT));
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _KeyEventsPlugin,
+    factory: _KeyEventsPlugin.ɵfac
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(KeyEventsPlugin, [{
@@ -1021,16 +1012,28 @@ var KeyEventsPlugin = class _KeyEventsPlugin extends EventManagerPlugin {
     }]
   }], null);
 })();
-function bootstrapApplication(rootComponent, options) {
-  return internalCreateApplication(__spreadValues({
-    rootComponent
-  }, createProvidersConfig(options)));
+function bootstrapApplication(rootComponent, options, context) {
+  return __async(this, null, function* () {
+    const config = __spreadValues({
+      rootComponent
+    }, createProvidersConfig(options, context));
+    if (false) {
+      yield resolveJitResources();
+    }
+    return internalCreateApplication(config);
+  });
 }
-function createApplication(options) {
-  return internalCreateApplication(createProvidersConfig(options));
+function createApplication(options, context) {
+  return __async(this, null, function* () {
+    if (false) {
+      yield resolveJitResources();
+    }
+    return internalCreateApplication(createProvidersConfig(options, context));
+  });
 }
-function createProvidersConfig(options) {
+function createProvidersConfig(options, context) {
   return {
+    platformRef: context?.platformRef,
     appProviders: [...BROWSER_MODULE_PROVIDERS, ...options?.providers ?? []],
     platformProviders: INTERNAL_BROWSER_PLATFORM_PROVIDERS
   };
@@ -1057,95 +1060,67 @@ var INTERNAL_BROWSER_PLATFORM_PROVIDERS = [{
   multi: true
 }, {
   provide: DOCUMENT,
-  useFactory: _document,
-  deps: []
+  useFactory: _document
 }];
 var platformBrowser = createPlatformFactory(platformCore, "browser", INTERNAL_BROWSER_PLATFORM_PROVIDERS);
 var BROWSER_MODULE_PROVIDERS_MARKER = new InjectionToken(typeof ngDevMode === "undefined" || ngDevMode ? "BrowserModule Providers Marker" : "");
 var TESTABILITY_PROVIDERS = [{
   provide: TESTABILITY_GETTER,
-  useClass: BrowserGetTestability,
-  deps: []
+  useClass: BrowserGetTestability
 }, {
   provide: TESTABILITY,
-  useClass: Testability,
-  deps: [NgZone, TestabilityRegistry, TESTABILITY_GETTER]
+  useClass: Testability
 }, {
   provide: Testability,
-  // Also provide as `Testability` for backwards-compatibility.
-  useClass: Testability,
-  deps: [NgZone, TestabilityRegistry, TESTABILITY_GETTER]
+  useClass: Testability
 }];
 var BROWSER_MODULE_PROVIDERS = [{
   provide: INJECTOR_SCOPE,
   useValue: "root"
 }, {
   provide: ErrorHandler,
-  useFactory: errorHandler,
-  deps: []
+  useFactory: errorHandler
 }, {
   provide: EVENT_MANAGER_PLUGINS,
   useClass: DomEventsPlugin,
-  multi: true,
-  deps: [DOCUMENT, NgZone, PLATFORM_ID]
+  multi: true
 }, {
   provide: EVENT_MANAGER_PLUGINS,
   useClass: KeyEventsPlugin,
-  multi: true,
-  deps: [DOCUMENT]
+  multi: true
 }, DomRendererFactory2, SharedStylesHost, EventManager, {
   provide: RendererFactory2,
   useExisting: DomRendererFactory2
 }, {
   provide: XhrFactory,
-  useClass: BrowserXhr,
-  deps: []
+  useClass: BrowserXhr
 }, typeof ngDevMode === "undefined" || ngDevMode ? {
   provide: BROWSER_MODULE_PROVIDERS_MARKER,
   useValue: true
 } : []];
 var BrowserModule = class _BrowserModule {
-  constructor(providersAlreadyPresent) {
-    if ((typeof ngDevMode === "undefined" || ngDevMode) && providersAlreadyPresent) {
-      throw new RuntimeError(5100, `Providers from the \`BrowserModule\` have already been loaded. If you need access to common directives such as NgIf and NgFor, import the \`CommonModule\` instead.`);
+  constructor() {
+    if (typeof ngDevMode === "undefined" || ngDevMode) {
+      const providersAlreadyPresent = inject(BROWSER_MODULE_PROVIDERS_MARKER, {
+        optional: true,
+        skipSelf: true
+      });
+      if (providersAlreadyPresent) {
+        throw new RuntimeError(5100, `Providers from the \`BrowserModule\` have already been loaded. If you need access to common directives such as NgIf and NgFor, import the \`CommonModule\` instead.`);
+      }
     }
   }
-  /**
-   * Configures a browser-based app to transition from a server-rendered app, if
-   * one is present on the page.
-   *
-   * @param params An object containing an identifier for the app to transition.
-   * The ID must match between the client and server versions of the app.
-   * @returns The reconfigured `BrowserModule` to import into the app's root `AppModule`.
-   *
-   * @deprecated Use {@link APP_ID} instead to set the application ID.
-   */
-  static withServerTransition(params) {
-    return {
-      ngModule: _BrowserModule,
-      providers: [{
-        provide: APP_ID,
-        useValue: params.appId
-      }]
-    };
-  }
-  static {
-    this.ɵfac = function BrowserModule_Factory(t) {
-      return new (t || _BrowserModule)(ɵɵinject(BROWSER_MODULE_PROVIDERS_MARKER, 12));
-    };
-  }
-  static {
-    this.ɵmod = ɵɵdefineNgModule({
-      type: _BrowserModule,
-      exports: [CommonModule, ApplicationModule]
-    });
-  }
-  static {
-    this.ɵinj = ɵɵdefineInjector({
-      providers: [...BROWSER_MODULE_PROVIDERS, ...TESTABILITY_PROVIDERS],
-      imports: [CommonModule, ApplicationModule]
-    });
-  }
+  static ɵfac = function BrowserModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _BrowserModule)();
+  };
+  static ɵmod = ɵɵdefineNgModule({
+    type: _BrowserModule,
+    exports: [CommonModule, ApplicationModule]
+  });
+  static ɵinj = ɵɵdefineInjector({
+    providers: [...BROWSER_MODULE_PROVIDERS, ...TESTABILITY_PROVIDERS],
+    imports: [CommonModule, ApplicationModule]
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BrowserModule, [{
@@ -1154,45 +1129,21 @@ var BrowserModule = class _BrowserModule {
       providers: [...BROWSER_MODULE_PROVIDERS, ...TESTABILITY_PROVIDERS],
       exports: [CommonModule, ApplicationModule]
     }]
-  }], () => [{
-    type: void 0,
-    decorators: [{
-      type: Optional
-    }, {
-      type: SkipSelf
-    }, {
-      type: Inject,
-      args: [BROWSER_MODULE_PROVIDERS_MARKER]
-    }]
-  }], null);
+  }], () => [], null);
 })();
+
+// node_modules/@angular/platform-browser/fesm2022/platform-browser.mjs
 var Meta = class _Meta {
+  _doc;
+  _dom;
   constructor(_doc) {
     this._doc = _doc;
     this._dom = getDOM();
   }
-  /**
-   * Retrieves or creates a specific `<meta>` tag element in the current HTML document.
-   * In searching for an existing tag, Angular attempts to match the `name` or `property` attribute
-   * values in the provided tag definition, and verifies that all other attribute values are equal.
-   * If an existing element is found, it is returned and is not modified in any way.
-   * @param tag The definition of a `<meta>` element to match or create.
-   * @param forceCreation True to create a new element without checking whether one already exists.
-   * @returns The existing element with the same attributes and values if found,
-   * the new element if no match is found, or `null` if the tag parameter is not defined.
-   */
   addTag(tag, forceCreation = false) {
     if (!tag) return null;
     return this._getOrCreateElement(tag, forceCreation);
   }
-  /**
-   * Retrieves or creates a set of `<meta>` tag elements in the current HTML document.
-   * In searching for an existing tag, Angular attempts to match the `name` or `property` attribute
-   * values in the provided tag definition, and verifies that all other attribute values are equal.
-   * @param tags An array of tag definitions to match or create.
-   * @param forceCreation True to create new elements without checking whether they already exist.
-   * @returns The matching elements if found, or the new elements.
-   */
   addTags(tags, forceCreation = false) {
     if (!tags) return [];
     return tags.reduce((result, tag) => {
@@ -1202,38 +1153,19 @@ var Meta = class _Meta {
       return result;
     }, []);
   }
-  /**
-   * Retrieves a `<meta>` tag element in the current HTML document.
-   * @param attrSelector The tag attribute and value to match against, in the format
-   * `"tag_attribute='value string'"`.
-   * @returns The matching element, if any.
-   */
   getTag(attrSelector) {
     if (!attrSelector) return null;
-    return this._doc.querySelector(`meta[${attrSelector}]`) || null;
+    const meta = this._doc.querySelector(`meta[${attrSelector}]`);
+    return meta?.nodeName.toLowerCase() === "meta" ? meta : null;
   }
-  /**
-   * Retrieves a set of `<meta>` tag elements in the current HTML document.
-   * @param attrSelector The tag attribute and value to match against, in the format
-   * `"tag_attribute='value string'"`.
-   * @returns The matching elements, if any.
-   */
   getTags(attrSelector) {
     if (!attrSelector) return [];
     const list = this._doc.querySelectorAll(`meta[${attrSelector}]`);
-    return list ? [].slice.call(list) : [];
+    return list ? [].slice.call(list).filter((elem) => elem.nodeName.toLowerCase() === "meta") : [];
   }
-  /**
-   * Modifies an existing `<meta>` tag element in the current HTML document.
-   * @param tag The tag description with which to replace the existing tag content.
-   * @param selector A tag attribute and value to match against, to identify
-   * an existing tag. A string in the format `"tag_attribute=`value string`"`.
-   * If not supplied, matches a tag with the same `name` or `property` attribute value as the
-   * replacement tag.
-   * @return The modified element.
-   */
   updateTag(tag, selector) {
     if (!tag) return null;
+    this._validateMetaDefinition(tag);
     selector = selector || this._parseSelector(tag);
     const meta = this.getTag(selector);
     if (meta) {
@@ -1241,24 +1173,16 @@ var Meta = class _Meta {
     }
     return this._getOrCreateElement(tag, true);
   }
-  /**
-   * Removes an existing `<meta>` tag element from the current HTML document.
-   * @param attrSelector A tag attribute and value to match against, to identify
-   * an existing tag. A string in the format `"tag_attribute=`value string`"`.
-   */
   removeTag(attrSelector) {
     this.removeTagElement(this.getTag(attrSelector));
   }
-  /**
-   * Removes an existing `<meta>` tag element from the current HTML document.
-   * @param meta The tag definition to match against to identify an existing tag.
-   */
   removeTagElement(meta) {
     if (meta) {
       this._dom.remove(meta);
     }
   }
   _getOrCreateElement(meta, forceCreation = false) {
+    this._validateMetaDefinition(meta);
     if (!forceCreation) {
       const selector = this._parseSelector(meta);
       const elem = this.getTags(selector).filter((elem2) => this._containsAttributes(meta, elem2))[0];
@@ -1276,26 +1200,33 @@ var Meta = class _Meta {
   }
   _parseSelector(tag) {
     const attr = tag.name ? "name" : "property";
-    return `${attr}="${tag[attr]}"`;
+    return `${attr}=${this._escapeSelectorValue(String(tag[attr]))}`;
+  }
+  _escapeSelectorValue(value) {
+    return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+  }
+  _validateMetaDefinition(tag) {
+    for (const prop of Object.keys(tag)) {
+      const attributeName = this._getMetaKeyMap(prop);
+      if (attributeName.toLowerCase().startsWith("on")) {
+        throw new RuntimeError(5203, (typeof ngDevMode === "undefined" || ngDevMode) && `The Meta service does not allow setting event handler attribute '${attributeName}' for security reasons.`);
+      }
+    }
   }
   _containsAttributes(tag, elem) {
     return Object.keys(tag).every((key) => elem.getAttribute(this._getMetaKeyMap(key)) === tag[key]);
   }
   _getMetaKeyMap(prop) {
-    return META_KEYS_MAP[prop] || prop;
+    return Object.hasOwn(META_KEYS_MAP, prop) ? META_KEYS_MAP[prop] : prop;
   }
-  static {
-    this.ɵfac = function Meta_Factory(t) {
-      return new (t || _Meta)(ɵɵinject(DOCUMENT));
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _Meta,
-      factory: _Meta.ɵfac,
-      providedIn: "root"
-    });
-  }
+  static ɵfac = function Meta_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _Meta)(ɵɵinject(DOCUMENT));
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _Meta,
+    factory: _Meta.ɵfac,
+    providedIn: "root"
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(Meta, [{
@@ -1315,34 +1246,24 @@ var META_KEYS_MAP = {
   httpEquiv: "http-equiv"
 };
 var Title = class _Title {
+  _doc;
   constructor(_doc) {
     this._doc = _doc;
   }
-  /**
-   * Get the title of the current HTML document.
-   */
   getTitle() {
     return this._doc.title;
   }
-  /**
-   * Set the title of the current HTML document.
-   * @param newTitle
-   */
   setTitle(newTitle) {
     this._doc.title = newTitle || "";
   }
-  static {
-    this.ɵfac = function Title_Factory(t) {
-      return new (t || _Title)(ɵɵinject(DOCUMENT));
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _Title,
-      factory: _Title.ɵfac,
-      providedIn: "root"
-    });
-  }
+  static ɵfac = function Title_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _Title)(ɵɵinject(DOCUMENT));
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _Title,
+    factory: _Title.ɵfac,
+    providedIn: "root"
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(Title, [{
@@ -1365,32 +1286,18 @@ function exportNgVar(name, value) {
   }
 }
 var ChangeDetectionPerfRecord = class {
+  msPerTick;
+  numTicks;
   constructor(msPerTick, numTicks) {
     this.msPerTick = msPerTick;
     this.numTicks = numTicks;
   }
 };
 var AngularProfiler = class {
+  appRef;
   constructor(ref) {
     this.appRef = ref.injector.get(ApplicationRef);
   }
-  // tslint:disable:no-console
-  /**
-   * Exercises change detection in a loop and then prints the average amount of
-   * time in milliseconds how long a single round of change detection takes for
-   * the current state of the UI. It runs a minimum of 5 rounds for a minimum
-   * of 500 milliseconds.
-   *
-   * Optionally, a user may pass a `config` parameter containing a map of
-   * options. Supported options are:
-   *
-   * `record` (boolean) - causes the profiler to record a CPU profile while
-   * it exercises the change detector. Example:
-   *
-   * ```
-   * ng.profiler.timeChangeDetection({record: true})
-   * ```
-   */
   timeChangeDetection(config) {
     const record = config && config["record"];
     const profileName = "Change Detection";
@@ -1422,38 +1329,14 @@ function disableDebugTools() {
   exportNgVar(PROFILER_GLOBAL_NAME, null);
 }
 var By = class {
-  /**
-   * Match all nodes.
-   *
-   * @usageNotes
-   * ### Example
-   *
-   * {@example platform-browser/dom/debug/ts/by/by.ts region='by_all'}
-   */
   static all() {
     return () => true;
   }
-  /**
-   * Match elements by the given CSS selector.
-   *
-   * @usageNotes
-   * ### Example
-   *
-   * {@example platform-browser/dom/debug/ts/by/by.ts region='by_css'}
-   */
   static css(selector) {
     return (debugElement) => {
       return debugElement.nativeElement != null ? elementMatches(debugElement.nativeElement, selector) : false;
     };
   }
-  /**
-   * Match nodes that have the given directive present.
-   *
-   * @usageNotes
-   * ### Example
-   *
-   * {@example platform-browser/dom/debug/ts/by/by.ts region='by_directive'}
-   */
   static directive(type) {
     return (debugNode) => debugNode.providerTokens.indexOf(type) !== -1;
   }
@@ -1465,7 +1348,6 @@ function elementMatches(n, selector) {
   return false;
 }
 var EVENT_NAMES = {
-  // pan
   "pan": true,
   "panstart": true,
   "panmove": true,
@@ -1475,7 +1357,6 @@ var EVENT_NAMES = {
   "panright": true,
   "panup": true,
   "pandown": true,
-  // pinch
   "pinch": true,
   "pinchstart": true,
   "pinchmove": true,
@@ -1483,38 +1364,27 @@ var EVENT_NAMES = {
   "pinchcancel": true,
   "pinchin": true,
   "pinchout": true,
-  // press
   "press": true,
   "pressup": true,
-  // rotate
   "rotate": true,
   "rotatestart": true,
   "rotatemove": true,
   "rotateend": true,
   "rotatecancel": true,
-  // swipe
   "swipe": true,
   "swipeleft": true,
   "swiperight": true,
   "swipeup": true,
   "swipedown": true,
-  // tap
   "tap": true,
   "doubletap": true
 };
-var HAMMER_GESTURE_CONFIG = new InjectionToken("HammerGestureConfig");
-var HAMMER_LOADER = new InjectionToken("HammerLoader");
+var HAMMER_GESTURE_CONFIG = new InjectionToken(typeof ngDevMode === "undefined" || ngDevMode ? "HammerGestureConfig" : "");
+var HAMMER_LOADER = new InjectionToken(typeof ngDevMode === "undefined" || ngDevMode ? "HammerLoader" : "");
 var HammerGestureConfig = class _HammerGestureConfig {
-  constructor() {
-    this.events = [];
-    this.overrides = {};
-  }
-  /**
-   * Creates a [HammerJS Manager](https://hammerjs.github.io/api/#hammermanager)
-   * and attaches it to a given HTML element.
-   * @param element The element that will recognize gestures.
-   * @returns A HammerJS event-manager object.
-   */
+  events = [];
+  overrides = {};
+  options;
   buildHammer(element) {
     const mc = new Hammer(element, this.options);
     mc.get("pinch").set({
@@ -1528,17 +1398,13 @@ var HammerGestureConfig = class _HammerGestureConfig {
     }
     return mc;
   }
-  static {
-    this.ɵfac = function HammerGestureConfig_Factory(t) {
-      return new (t || _HammerGestureConfig)();
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _HammerGestureConfig,
-      factory: _HammerGestureConfig.ɵfac
-    });
-  }
+  static ɵfac = function HammerGestureConfig_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _HammerGestureConfig)();
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _HammerGestureConfig,
+    factory: _HammerGestureConfig.ɵfac
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HammerGestureConfig, [{
@@ -1546,12 +1412,15 @@ var HammerGestureConfig = class _HammerGestureConfig {
   }], null, null);
 })();
 var HammerGesturesPlugin = class _HammerGesturesPlugin extends EventManagerPlugin {
-  constructor(doc, _config, console2, loader) {
+  _config;
+  _injector;
+  loader;
+  _loaderPromise = null;
+  constructor(doc, _config, _injector, loader) {
     super(doc);
     this._config = _config;
-    this.console = console2;
+    this._injector = _injector;
     this.loader = loader;
-    this._loaderPromise = null;
   }
   supports(eventName) {
     if (!EVENT_NAMES.hasOwnProperty(eventName.toLowerCase()) && !this.isCustomEvent(eventName)) {
@@ -1559,7 +1428,8 @@ var HammerGesturesPlugin = class _HammerGesturesPlugin extends EventManagerPlugi
     }
     if (!window.Hammer && !this.loader) {
       if (typeof ngDevMode === "undefined" || ngDevMode) {
-        this.console.warn(`The "${eventName}" event cannot be bound because Hammer.JS is not loaded and no custom loader has been specified.`);
+        const _console = this._injector.get(Console);
+        _console.warn(`The "${eventName}" event cannot be bound because Hammer.JS is not loaded and no custom loader has been specified.`);
       }
       return false;
     }
@@ -1577,7 +1447,8 @@ var HammerGesturesPlugin = class _HammerGesturesPlugin extends EventManagerPlugi
       zone.runOutsideAngular(() => this._loaderPromise.then(() => {
         if (!window.Hammer) {
           if (typeof ngDevMode === "undefined" || ngDevMode) {
-            this.console.warn(`The custom HAMMER_LOADER completed, but Hammer.JS is not present.`);
+            const _console = this._injector.get(Console);
+            _console.warn(`The custom HAMMER_LOADER completed, but Hammer.JS is not present.`);
           }
           deregister = () => {
           };
@@ -1588,7 +1459,8 @@ var HammerGesturesPlugin = class _HammerGesturesPlugin extends EventManagerPlugi
         }
       }).catch(() => {
         if (typeof ngDevMode === "undefined" || ngDevMode) {
-          this.console.warn(`The "${eventName}" event cannot be bound because the custom Hammer.JS loader failed.`);
+          const _console = this._injector.get(Console);
+          _console.warn(`The "${eventName}" event cannot be bound because the custom Hammer.JS loader failed.`);
         }
         deregister = () => {
         };
@@ -1616,17 +1488,13 @@ var HammerGesturesPlugin = class _HammerGesturesPlugin extends EventManagerPlugi
   isCustomEvent(eventName) {
     return this._config.events.indexOf(eventName) > -1;
   }
-  static {
-    this.ɵfac = function HammerGesturesPlugin_Factory(t) {
-      return new (t || _HammerGesturesPlugin)(ɵɵinject(DOCUMENT), ɵɵinject(HAMMER_GESTURE_CONFIG), ɵɵinject(Console), ɵɵinject(HAMMER_LOADER, 8));
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _HammerGesturesPlugin,
-      factory: _HammerGesturesPlugin.ɵfac
-    });
-  }
+  static ɵfac = function HammerGesturesPlugin_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _HammerGesturesPlugin)(ɵɵinject(DOCUMENT), ɵɵinject(HAMMER_GESTURE_CONFIG), ɵɵinject(Injector), ɵɵinject(HAMMER_LOADER, 8));
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _HammerGesturesPlugin,
+    factory: _HammerGesturesPlugin.ɵfac
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HammerGesturesPlugin, [{
@@ -1644,7 +1512,7 @@ var HammerGesturesPlugin = class _HammerGesturesPlugin extends EventManagerPlugi
       args: [HAMMER_GESTURE_CONFIG]
     }]
   }, {
-    type: Console
+    type: Injector
   }, {
     type: void 0,
     decorators: [{
@@ -1656,30 +1524,23 @@ var HammerGesturesPlugin = class _HammerGesturesPlugin extends EventManagerPlugi
   }], null);
 })();
 var HammerModule = class _HammerModule {
-  static {
-    this.ɵfac = function HammerModule_Factory(t) {
-      return new (t || _HammerModule)();
-    };
-  }
-  static {
-    this.ɵmod = ɵɵdefineNgModule({
-      type: _HammerModule
-    });
-  }
-  static {
-    this.ɵinj = ɵɵdefineInjector({
-      providers: [{
-        provide: EVENT_MANAGER_PLUGINS,
-        useClass: HammerGesturesPlugin,
-        multi: true,
-        deps: [DOCUMENT, HAMMER_GESTURE_CONFIG, Console, [new Optional(), HAMMER_LOADER]]
-      }, {
-        provide: HAMMER_GESTURE_CONFIG,
-        useClass: HammerGestureConfig,
-        deps: []
-      }]
-    });
-  }
+  static ɵfac = function HammerModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _HammerModule)();
+  };
+  static ɵmod = ɵɵdefineNgModule({
+    type: _HammerModule
+  });
+  static ɵinj = ɵɵdefineInjector({
+    providers: [{
+      provide: EVENT_MANAGER_PLUGINS,
+      useClass: HammerGesturesPlugin,
+      multi: true,
+      deps: [DOCUMENT, HAMMER_GESTURE_CONFIG, Injector, [new Optional(), HAMMER_LOADER]]
+    }, {
+      provide: HAMMER_GESTURE_CONFIG,
+      useClass: HammerGestureConfig
+    }]
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HammerModule, [{
@@ -1689,36 +1550,31 @@ var HammerModule = class _HammerModule {
         provide: EVENT_MANAGER_PLUGINS,
         useClass: HammerGesturesPlugin,
         multi: true,
-        deps: [DOCUMENT, HAMMER_GESTURE_CONFIG, Console, [new Optional(), HAMMER_LOADER]]
+        deps: [DOCUMENT, HAMMER_GESTURE_CONFIG, Injector, [new Optional(), HAMMER_LOADER]]
       }, {
         provide: HAMMER_GESTURE_CONFIG,
-        useClass: HammerGestureConfig,
-        deps: []
+        useClass: HammerGestureConfig
       }]
     }]
   }], null, null);
 })();
 var DomSanitizer = class _DomSanitizer {
-  static {
-    this.ɵfac = function DomSanitizer_Factory(t) {
-      return new (t || _DomSanitizer)();
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _DomSanitizer,
-      factory: function DomSanitizer_Factory(t) {
-        let r = null;
-        if (t) {
-          r = new (t || _DomSanitizer)();
-        } else {
-          r = ɵɵinject(DomSanitizerImpl);
-        }
-        return r;
-      },
-      providedIn: "root"
-    });
-  }
+  static ɵfac = function DomSanitizer_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _DomSanitizer)();
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _DomSanitizer,
+    factory: function DomSanitizer_Factory(__ngFactoryType__) {
+      let __ngConditionalFactory__ = null;
+      if (__ngFactoryType__) {
+        __ngConditionalFactory__ = new (__ngFactoryType__ || _DomSanitizer)();
+      } else {
+        __ngConditionalFactory__ = ɵɵinject(DomSanitizerImpl);
+      }
+      return __ngConditionalFactory__;
+    },
+    providedIn: "root"
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DomSanitizer, [{
@@ -1730,6 +1586,7 @@ var DomSanitizer = class _DomSanitizer {
   }], null, null);
 })();
 var DomSanitizerImpl = class _DomSanitizerImpl extends DomSanitizer {
+  _doc;
   constructor(_doc) {
     super();
     this._doc = _doc;
@@ -1740,47 +1597,27 @@ var DomSanitizerImpl = class _DomSanitizerImpl extends DomSanitizer {
       case SecurityContext.NONE:
         return value;
       case SecurityContext.HTML:
-        if (allowSanitizationBypassAndThrow(
-          value,
-          "HTML"
-          /* BypassType.Html */
-        )) {
+        if (allowSanitizationBypassAndThrow(value, "HTML")) {
           return unwrapSafeValue(value);
         }
         return _sanitizeHtml(this._doc, String(value)).toString();
       case SecurityContext.STYLE:
-        if (allowSanitizationBypassAndThrow(
-          value,
-          "Style"
-          /* BypassType.Style */
-        )) {
+        if (allowSanitizationBypassAndThrow(value, "Style")) {
           return unwrapSafeValue(value);
         }
         return value;
       case SecurityContext.SCRIPT:
-        if (allowSanitizationBypassAndThrow(
-          value,
-          "Script"
-          /* BypassType.Script */
-        )) {
+        if (allowSanitizationBypassAndThrow(value, "Script")) {
           return unwrapSafeValue(value);
         }
         throw new RuntimeError(5200, (typeof ngDevMode === "undefined" || ngDevMode) && "unsafe value used in a script context");
       case SecurityContext.URL:
-        if (allowSanitizationBypassAndThrow(
-          value,
-          "URL"
-          /* BypassType.Url */
-        )) {
+        if (allowSanitizationBypassAndThrow(value, "URL")) {
           return unwrapSafeValue(value);
         }
         return _sanitizeUrl(String(value));
       case SecurityContext.RESOURCE_URL:
-        if (allowSanitizationBypassAndThrow(
-          value,
-          "ResourceURL"
-          /* BypassType.ResourceUrl */
-        )) {
+        if (allowSanitizationBypassAndThrow(value, "ResourceURL")) {
           return unwrapSafeValue(value);
         }
         throw new RuntimeError(5201, (typeof ngDevMode === "undefined" || ngDevMode) && `unsafe value used in a resource URL context (see ${XSS_SECURITY_URL})`);
@@ -1803,18 +1640,14 @@ var DomSanitizerImpl = class _DomSanitizerImpl extends DomSanitizer {
   bypassSecurityTrustResourceUrl(value) {
     return bypassSanitizationTrustResourceUrl(value);
   }
-  static {
-    this.ɵfac = function DomSanitizerImpl_Factory(t) {
-      return new (t || _DomSanitizerImpl)(ɵɵinject(DOCUMENT));
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _DomSanitizerImpl,
-      factory: _DomSanitizerImpl.ɵfac,
-      providedIn: "root"
-    });
-  }
+  static ɵfac = function DomSanitizerImpl_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _DomSanitizerImpl)(ɵɵinject(DOCUMENT));
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _DomSanitizerImpl,
+    factory: _DomSanitizerImpl.ɵfac,
+    providedIn: "root"
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DomSanitizerImpl, [{
@@ -1834,6 +1667,9 @@ var HydrationFeatureKind;
 (function(HydrationFeatureKind2) {
   HydrationFeatureKind2[HydrationFeatureKind2["NoHttpTransferCache"] = 0] = "NoHttpTransferCache";
   HydrationFeatureKind2[HydrationFeatureKind2["HttpTransferCacheOptions"] = 1] = "HttpTransferCacheOptions";
+  HydrationFeatureKind2[HydrationFeatureKind2["I18nSupport"] = 2] = "I18nSupport";
+  HydrationFeatureKind2[HydrationFeatureKind2["EventReplay"] = 3] = "EventReplay";
+  HydrationFeatureKind2[HydrationFeatureKind2["IncrementalHydration"] = 4] = "IncrementalHydration";
 })(HydrationFeatureKind || (HydrationFeatureKind = {}));
 function hydrationFeature(ɵkind, ɵproviders = [], ɵoptions = {}) {
   return {
@@ -1847,14 +1683,25 @@ function withNoHttpTransferCache() {
 function withHttpTransferCacheOptions(options) {
   return hydrationFeature(HydrationFeatureKind.HttpTransferCacheOptions, withHttpTransferCache(options));
 }
-function provideZoneJsCompatibilityDetector() {
+function withI18nSupport2() {
+  return hydrationFeature(HydrationFeatureKind.I18nSupport, withI18nSupport());
+}
+function withEventReplay2() {
+  return hydrationFeature(HydrationFeatureKind.EventReplay, withEventReplay());
+}
+function withIncrementalHydration2() {
+  return hydrationFeature(HydrationFeatureKind.IncrementalHydration, withIncrementalHydration());
+}
+function provideEnabledBlockingInitialNavigationDetector() {
   return [{
     provide: ENVIRONMENT_INITIALIZER,
     useValue: () => {
-      const ngZone = inject(NgZone);
-      if (ngZone.constructor !== NgZone) {
+      const isEnabledBlockingInitialNavigation = inject(IS_ENABLED_BLOCKING_INITIAL_NAVIGATION, {
+        optional: true
+      });
+      if (isEnabledBlockingInitialNavigation) {
         const console2 = inject(Console);
-        const message = formatRuntimeError(-5e3, "Angular detected that hydration was enabled for an application that uses a custom or a noop Zone.js implementation. This is not yet a fully supported configuration.");
+        const message = formatRuntimeError(5001, "Configuration error: found both hydration and enabledBlocking initial navigation in the same application, which is a contradiction.");
         console2.warn(message);
       }
     },
@@ -1864,7 +1711,6 @@ function provideZoneJsCompatibilityDetector() {
 function provideClientHydration(...features) {
   const providers = [];
   const featuresKind = /* @__PURE__ */ new Set();
-  const hasHttpTransferCacheOptions = featuresKind.has(HydrationFeatureKind.HttpTransferCacheOptions);
   for (const {
     ɵproviders,
     ɵkind
@@ -1874,31 +1720,28 @@ function provideClientHydration(...features) {
       providers.push(ɵproviders);
     }
   }
+  const hasHttpTransferCacheOptions = featuresKind.has(HydrationFeatureKind.HttpTransferCacheOptions);
   if (typeof ngDevMode !== "undefined" && ngDevMode && featuresKind.has(HydrationFeatureKind.NoHttpTransferCache) && hasHttpTransferCacheOptions) {
-    throw new Error("Configuration error: found both withHttpTransferCacheOptions() and withNoHttpTransferCache() in the same call to provideClientHydration(), which is a contradiction.");
+    throw new RuntimeError(5001, "Configuration error: found both withHttpTransferCacheOptions() and withNoHttpTransferCache() in the same call to provideClientHydration(), which is a contradiction.");
   }
-  return makeEnvironmentProviders([typeof ngDevMode !== "undefined" && ngDevMode ? provideZoneJsCompatibilityDetector() : [], withDomHydration(), featuresKind.has(HydrationFeatureKind.NoHttpTransferCache) || hasHttpTransferCacheOptions ? [] : withHttpTransferCache({}), providers]);
+  return makeEnvironmentProviders([typeof ngDevMode !== "undefined" && ngDevMode ? provideEnabledBlockingInitialNavigationDetector() : [], typeof ngDevMode !== "undefined" && ngDevMode ? provideStabilityDebugging() : [], withDomHydration(), featuresKind.has(HydrationFeatureKind.NoHttpTransferCache) || hasHttpTransferCacheOptions ? [] : withHttpTransferCache({}), providers]);
 }
-var VERSION = new Version("17.3.12");
-var makeStateKey2 = makeStateKey;
-var TransferState2 = TransferState;
+var VERSION = new Version("21.2.25");
 
 export {
-  BrowserDomAdapter,
-  BrowserGetTestability,
+  EventManagerPlugin,
+  DomEventsPlugin,
   EVENT_MANAGER_PLUGINS,
   EventManager,
-  EventManagerPlugin,
   SharedStylesHost,
   REMOVE_STYLES_ON_COMPONENT_DESTROY,
   DomRendererFactory2,
-  DomEventsPlugin,
+  BrowserDomAdapter,
+  BrowserGetTestability,
   KeyEventsPlugin,
   bootstrapApplication,
   createApplication,
   provideProtractorTestingSupport,
-  initDomAdapter,
-  INTERNAL_BROWSER_PLATFORM_PROVIDERS,
   platformBrowser,
   BrowserModule,
   Meta,
@@ -1916,18 +1759,10 @@ export {
   HydrationFeatureKind,
   withNoHttpTransferCache,
   withHttpTransferCacheOptions,
+  withI18nSupport2 as withI18nSupport,
+  withEventReplay2 as withEventReplay,
+  withIncrementalHydration2 as withIncrementalHydration,
   provideClientHydration,
-  VERSION,
-  makeStateKey2 as makeStateKey,
-  TransferState2 as TransferState
+  VERSION
 };
-/*! Bundled license information:
-
-@angular/platform-browser/fesm2022/platform-browser.mjs:
-  (**
-   * @license Angular v17.3.12
-   * (c) 2010-2024 Google LLC. https://angular.io/
-   * License: MIT
-   *)
-*/
-//# sourceMappingURL=chunk-KQRVQYCG.js.map
+//# sourceMappingURL=chunk-KSTIELJ5.js.map
