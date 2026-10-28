@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -11,8 +11,9 @@ import { HttpClient } from '@angular/common/http';
   styleUrl: './app.component.css'
 })
 
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'profitwise';
+  constructor(private http: HttpClient) {}
 
   // Default values
   orders = 0;
@@ -64,6 +65,13 @@ export class AppComponent {
 
   onSettingsChange() {
     console.log("Settings changed:", this.revenuePerOrder, this.cogs, this.feesPercentage, this.commissionsPercentage, this.vatPercentage, this.shipping);
+  }
+
+  // Fetch settings from the API
+  ngOnInit() {
+    this.http.get('http://localhost:8787/settings').subscribe(data => {
+      console.log(data);
+    });
   }
 
 }

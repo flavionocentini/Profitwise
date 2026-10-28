@@ -12,9 +12,21 @@ export default {
 	async fetch(request, env: Env, ctx): Promise<Response> {
 		const url = new URL(request.url);
 
-		if (url.pathname === "/api/settings") {
+		// CORS
+		const corsHeaders = {
+			"Access-Control-Allow-Origin": "http://localhost:4200",
+			"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+			"Access-Control-Allow-Headers": "Content-Type, Authorization"
+		};
 
-			// Gettind data
+		if (request.method === "OPTIONS") {
+			return new Response(null, { headers: corsHeaders, status: 204 });
+		}
+
+		// Settings
+		if (url.pathname === "/settings") {
+
+			// Getting data
 			if (request.method === "GET") {
 				const response = await fetch(
 					`${env.SUPABASE_URL}/rest/v1/settings?select=*`,
@@ -29,23 +41,33 @@ export default {
 				if (!response.ok) {
 					return Response.json(
 						{ error: "Failed to fetch settings" },
-						{ status: 500 }
+						{ status: 500, headers: corsHeaders }
 					);
 				}
 
 				const data = await response.json() as Settings[];
-				return Response.json(data[0]);
+				return Response.json(data[0], { headers: corsHeaders });
 			}
 
 			// Updating data
 			if (request.method === "PATCH") {
-				const updates: unknown = await request.json();
 
 				// Check if the data is valid JSON
+				let updates: unknown;
+
+				try {
+					updates = await request.json();
+				} catch {
+					return Response.json(
+						{ error: "Invalid JSON" },
+						{ status: 400, headers: corsHeaders }
+					);
+				}
+
 				if (typeof updates !== "object" || updates === null || Array.isArray(updates)) {
 					return Response.json(
 						{ error: "Expected a JSON object" },
-						{ status: 400 }
+						{ status: 400, headers: corsHeaders }
 					);
 				}
 
@@ -63,7 +85,7 @@ export default {
 					if (!allowedFields.includes(field)) {
 						return Response.json(
 							{ error: `Unknown field: ${field}` },
-							{ status: 400 }
+							{ status: 400, headers: corsHeaders }
 						);
 					}
 				}
@@ -73,7 +95,7 @@ export default {
 					if (typeof value !== "number" || !Number.isFinite(value)) {
 						return Response.json(
 							{ error: `${field} must be a valid number` },
-							{ status: 400 }
+							{ status: 400, headers: corsHeaders }
 						);
 					}
 				}
@@ -90,7 +112,7 @@ export default {
 					if (typeof value === "number" && (value < 0 || value > 100)) {
 						return Response.json(
 							{ error: `${field} must be between 0 and 100` },
-							{ status: 400 }
+							{ status: 400, headers: corsHeaders }
 						);
 					}
 				}
@@ -107,7 +129,7 @@ export default {
 					if (typeof value === "number" && value < 0) {
 						return Response.json(
 							{ error: `${field} cannot be negative` },
-							{ status: 400 }
+							{ status: 400, headers: corsHeaders }
 						);
 					}
 				}
@@ -116,7 +138,7 @@ export default {
 				if (Object.keys(updates).length === 0) {
 					return Response.json(
 						{ error: "No fields to update" },
-						{ status: 400 }
+						{ status: 400, headers: corsHeaders }
 					);
 				}
 
@@ -138,19 +160,19 @@ export default {
 				if (!response.ok) {
 					return Response.json(
 						{ error: "Failed to update settings" },
-						{ status: 500 }
+						{ status: 500, headers: corsHeaders }
 					);
 				}
 
 				const data = await response.json() as Settings[];
-				return Response.json(data[0]);
+				return Response.json(data[0], { headers: corsHeaders });
 			}
 
 		}
 
 		return Response.json(
-			{ error: "Not found" },
-			{ status: 404 }
+			{ error: "Error" },
+			{ status: 400, headers: corsHeaders }
 		);
 	},
 } satisfies ExportedHandler<Env>;
