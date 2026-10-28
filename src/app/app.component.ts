@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -9,9 +10,11 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
+
 export class AppComponent {
   title = 'profitwise';
 
+  // Default values
   orders = 0;
   adSpend = 0;
 
@@ -22,6 +25,7 @@ export class AppComponent {
   vatPercentage = 20;
   shipping = 4;
 
+  // Calculate profit
   get profit() {
     
     let vatValue = this.vatPercentage / 100;
@@ -41,10 +45,12 @@ export class AppComponent {
     }
   }
 
+  // Calculate total revenue
   get revenue() {
     return this.revenuePerOrder * this.orders;
   }
 
+  // Calculate profit margin
   get profitMargin() {
 
     let profitMargin = (this.profit / this.revenue) * 100;
