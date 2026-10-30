@@ -1,17 +1,7 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-
-type Settings = {
-  id: number;
-  revenue_per_order: number;
-  cogs: number;
-  fees_percentage: number;
-  commissions_percentage: number;
-  vat_percentage: number;
-  shipping: number;
-};
+import { SettingsService } from './settings.service';
 
 @Component({
     selector: 'app-root',
@@ -23,7 +13,7 @@ type Settings = {
 
 export class AppComponent implements OnInit {
   title = 'profitwise';
-  constructor(private http: HttpClient) {}
+  constructor(private settingsService: SettingsService) {}
 
   // Default values
   orders = 0;
@@ -76,19 +66,19 @@ export class AppComponent implements OnInit {
   // Update settings using the API
   onSettingsChange() {
     //console.log("Settings changed:", this.revenuePerOrder, this.cogs, this.feesPercentage, this.commissionsPercentage, this.vatPercentage, this.shipping);
-    this.http.patch('http://localhost:8787/settings', {
+    this.settingsService.updateSettings({
       revenue_per_order: this.revenuePerOrder,
       cogs: this.cogs,
       fees_percentage: this.feesPercentage,
       commissions_percentage: this.commissionsPercentage,
       vat_percentage: this.vatPercentage,
-      shipping: this.shipping
+      shipping: this.shipping,
     }).subscribe();
   }
 
   // Fetch settings from the API
   ngOnInit() {
-    this.http.get<Settings>('http://localhost:8787/settings').subscribe(data => {
+    this.settingsService.getSettings().subscribe(data => {
       this.revenuePerOrder = data.revenue_per_order;
       this.cogs = data.cogs;
       this.feesPercentage = data.fees_percentage;

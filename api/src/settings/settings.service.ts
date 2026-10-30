@@ -1,18 +1,15 @@
 import { Injectable, InternalServerErrorException, BadRequestException } from '@nestjs/common';
-import { createClient } from '@supabase/supabase-js';
 import { UpdateSettingsDto } from './dto/update-settings.dto/update-settings.dto.js';
+import { SupabaseService } from '../supabase/supabase.service.js';
 
 @Injectable()
 export class SettingsService {
 
-    private readonly supabase = createClient(
-        process.env.SUPABASE_URL!,
-        process.env.SUPABASE_SECRET_KEY!
-    );
+    constructor(private readonly supabaseService: SupabaseService) {}
 
     // Get settings
     async getSettings() {
-        const { data, error } = await this.supabase.from('settings').select('*').limit(1).single();
+        const { data, error } = await this.supabaseService.client.from('settings').select('*').limit(1).single();
 
         if (error) {
             throw new InternalServerErrorException('Failed to fetch settings');
@@ -28,7 +25,7 @@ export class SettingsService {
             throw new BadRequestException('Request body cannot be empty');
         }
 
-        const { data, error } = await this.supabase.from('settings').update(body).eq('id', 1).select().single();
+        const { data, error } = await this.supabaseService.client.from('settings').update(body).eq('id', 1).select().single();
 
         if (error) {
             throw new InternalServerErrorException('Failed to update settings');
