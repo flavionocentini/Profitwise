@@ -1,80 +1,112 @@
-<main>
-  <div class="header">
-    <h1>Profitwise</h1>
-    <p>A simple profit margin calculator</p>
-  </div>
-  <div class="calc">
-    <h2>Calculator</h2>
-    <div class="daily">
-      <div>
-        <h3>Orders</h3>
-        <input type="number" [(ngModel)]="orders"/>
-      </div>
-      <div>
-        <h3>Ad Spend</h3>
-        <input type="number" [(ngModel)]="adSpend"/>
-      </div>
+<div class="page page--narrow">
+  <header class="page-header">
+    <div>
+      <h1>Calculator</h1>
+      <p>A simple profit margin calculator</p>
     </div>
-    <div class="output">
-      <div>
-        <h3>Revenue</h3>
-        <p>{{ revenue | number:'1.2-2' }}</p>
-      </div>
-      <div>
-        <h3>Gross Profit</h3>
-        <p>{{ grossProfit | number:'1.2-2' }}</p>
-      </div>
-      <div>
-        <h3>Net Profit</h3>
-        <p>{{ netProfit | number:'1.2-2' }}</p>
-      </div>
-      <div>
-        <h3>Net Profit Margin</h3>
-        <p>{{ profitMargin | number:'1.0-0' }}%</p>
-      </div>
-      <div>
-        <h3>ROAS</h3>
-        <p>{{ roas !== null ? (roas | number:'1.2-2') : '-' }}</p>
-      </div>
+  </header>
+
+  <section class="section">
+    <h2>Daily inputs</h2>
+    <p class="hint">The numbers for the day you want to calculate.</p>
+
+    <div class="field-grid">
+      <label class="field">
+        <span>Orders</span>
+        <input type="number" [(ngModel)]="orders" />
+      </label>
+
+      <label class="field">
+        <span>Ad spend (€)</span>
+        <input type="number" [(ngModel)]="adSpend" />
+      </label>
     </div>
-    <div class="save">
+  </section>
+
+  <section class="section">
+    <h2>Results</h2>
+    <p class="hint">Calculated from your inputs and settings. Updates as you type.</p>
+
+    <dl class="rows">
       <div>
-        <h3>Select the date you want to save the data for:</h3>
-        <input type="date" [(ngModel)]="selectedDate"/>
+        <dt>Revenue</dt>
+        <dd>{{ revenue | number:'1.2-2' }}</dd>
       </div>
       <div>
-        <button (click)="saveDailyResult()" [disabled]="!selectedDate">Save</button>
+        <dt>Gross Profit</dt>
+        <dd>{{ grossProfit | number:'1.2-2' }}</dd>
       </div>
-      <div [class.success]="saved" [class.error]="!saved && saveMessage">
-        <p>{{ saveMessage }}</p>
+      <div>
+        <dt>Net Profit</dt>
+        <dd [class.positive]="netProfit >= 0" [class.negative]="netProfit < 0">
+          {{ netProfit | number:'1.2-2' }}
+        </dd>
       </div>
+      <div>
+        <dt>Net Profit Margin</dt>
+        <dd>{{ profitMargin | number:'1.0-0' }}%</dd>
+      </div>
+      <div>
+        <dt>ROAS</dt>
+        <dd>{{ roas !== null ? (roas | number:'1.2-2') : '-' }}</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="section">
+    <h2>Save</h2>
+    <p class="hint">Adds the day to your calendar. Each date holds one saved result.</p>
+
+    <div class="save-row">
+      <label class="field">
+        <span>Date to save the data for</span>
+        <input type="date" [(ngModel)]="selectedDate" />
+      </label>
+
+      <button class="btn" (click)="saveDailyResult()" [disabled]="!selectedDate">Save</button>
     </div>
-  </div>
-  <div class="settings">
+
+    @if (saveMessage) {
+      <p class="message" [class.success]="saved" [class.error]="!saved && saveMessage">
+        {{ saveMessage }}
+      </p>
+    }
+  </section>
+
+  <section class="section">
     <h2>Settings</h2>
-    <div>
-      <h3>Revenue per order</h3>
-      <input type="number" [(ngModel)]="revenuePerOrder" (change)="onSettingsChange()"/>
+    <p class="hint">Your costs and rates, applied to every calculation.</p>
+
+    <div class="field-grid">
+      <label class="field">
+        <span>Revenue per order</span>
+        <input type="number" [(ngModel)]="revenuePerOrder" (change)="onSettingsChange()" />
+      </label>
+
+      <label class="field">
+        <span>COGS</span>
+        <input type="number" [(ngModel)]="cogs" (change)="onSettingsChange()" />
+      </label>
+
+      <label class="field">
+        <span>Fees (%)</span>
+        <input type="number" [(ngModel)]="feesPercentage" (change)="onSettingsChange()" />
+      </label>
+
+      <label class="field">
+        <span>Commissions (%)</span>
+        <input type="number" [(ngModel)]="commissionsPercentage" (change)="onSettingsChange()" />
+      </label>
+
+      <label class="field">
+        <span>VAT (%)</span>
+        <input type="number" [(ngModel)]="vatPercentage" (change)="onSettingsChange()" />
+      </label>
+
+      <label class="field">
+        <span>Shipping</span>
+        <input type="number" [(ngModel)]="shipping" (change)="onSettingsChange()" />
+      </label>
     </div>
-    <div>
-      <h3>COGS</h3>
-      <input type="number" [(ngModel)]="cogs" (change)="onSettingsChange()"/>
-    </div>
-    <div>
-      <h3>Fees (%)</h3>
-      <input type="number" [(ngModel)]="feesPercentage" (change)="onSettingsChange()"/>
-    </div>
-    <div>
-      <h3>Commissions (%)</h3>
-      <input type="number" [(ngModel)]="commissionsPercentage" (change)="onSettingsChange()"/>
-    </div>
-    <div>
-      <h3>VAT (%)</h3>
-      <input type="number" [(ngModel)]="vatPercentage" (change)="onSettingsChange()"/>
-    </div>
-    <div>
-      <h3>Shipping</h3>
-      <input type="number" [(ngModel)]="shipping" (change)="onSettingsChange()"/>
-    </div>
-  </div>
-</main>
+  </section>
+</div>

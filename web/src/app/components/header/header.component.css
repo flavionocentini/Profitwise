@@ -1,0 +1,41 @@
+.site-header {
+  border-bottom: 1px solid var(--border);
+}
+
+.inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: var(--page-width);
+  height: 56px;
+  margin: 0 auto;
+  padding: 0 var(--page-padding);
+}
+
+.brand {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+nav {
+  display: flex;
+  gap: 24px;
+}
+
+nav a {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+nav a:hover,
+nav a.active {
+  color: var(--text);
+}
+
+nav a.active {
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}

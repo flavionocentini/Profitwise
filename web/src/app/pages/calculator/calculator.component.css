@@ -1,32 +1,35 @@
-.header {
-    background-color: aqua;
-    text-align: center;
+.save-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
 }
 
-.calc {
-    background-color: lightgray;
+.save-row .field {
+  flex: 1;
 }
 
-.settings {
-    background-color: gray;
+.message {
+  margin-top: 16px;
+  font-size: 14px;
 }
 
-.daily {
-    background-color: lightblue;
+.message.success {
+  color: var(--positive);
 }
 
-.output {
-    background-color: lightgreen;
+.message.error {
+  color: var(--negative);
 }
 
-.save {
-    background-color: lightyellow;
+@media (max-width: 480px) {
+  .save-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
-.success {
-    background-color: greenyellow;
-}
-
-.error {
-    background-color: red;
+.hint {
+  margin: -12px 0 20px;
+  font-size: 13px;
+  color: var(--text-muted);
 }

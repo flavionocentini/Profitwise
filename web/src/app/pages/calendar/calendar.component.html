@@ -1,22 +1,26 @@
-<main>
-  <header>
-    <h1>Profitwise</h1>
-    <p>Your daily profit overview</p>
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>Calendar</h1>
+      <p>Your daily profit overview</p>
+    </div>
+
+    <a class="btn" routerLink="/calculator">Open calculator</a>
   </header>
 
   <section class="calendar">
     <div class="calendar-header">
-      <button (click)="previousMonth()">Previous</button>
+      <button class="btn btn--secondary" (click)="previousMonth()" aria-label="Previous month">←</button>
 
       <h2>{{ monthLabel }}</h2>
 
-      <button (click)="nextMonth()">Next</button>
+      <button class="btn btn--secondary" (click)="nextMonth()" aria-label="Next month">→</button>
     </div>
 
     @if (loading) {
-      <p>Loading calendar...</p>
+      <p class="status">Loading calendar...</p>
     } @else if (errorMessage) {
-      <p>{{ errorMessage }}</p>
+      <p class="status negative">{{ errorMessage }}</p>
     } @else {
       <div class="calendar-grid">
         @for (day of ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; track day) {
@@ -54,10 +58,11 @@
           }
         }
       </div>
+
+      <p class="legend">
+        Each saved day shows its net profit and profit margin. Select a day to see the full breakdown.
+        Days without a result are blank.
+      </p>
     }
   </section>
-
-  <footer>
-    <a routerLink="/calculator">Open calculator</a>
-  </footer>
-</main>
+</div>

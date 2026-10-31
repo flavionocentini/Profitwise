@@ -1,59 +1,102 @@
-<main>
-  <a routerLink="/">← Back to calendar</a>
+<div class="page">
+  <a class="back" routerLink="/dashboard">← Back to calendar</a>
 
   @if (loading) {
-    <p>Loading daily results...</p>
+    <p class="status">Loading daily results...</p>
   } @else if (errorMessage) {
-    <p>{{ errorMessage }}</p>
+    <p class="status negative">{{ errorMessage }}</p>
   } @else if (result) {
-    <header>
-      <h1>Daily Results</h1>
-      <p>{{ result.date }}</p>
+    <header class="page-header">
+      <div>
+        <h1>Daily Results</h1>
+        <p>{{ result.date }}</p>
+      </div>
     </header>
 
     <section class="summary">
-      <div>
-        <h2>Revenue</h2>
-        <p>€{{ result.revenue | number:'1.2-2' }}</p>
+      <div class="stat">
+        <span class="label">Revenue</span>
+        <span class="value">€{{ result.revenue | number:'1.2-2' }}</span>
       </div>
 
-      <div>
-        <h2>Gross Profit</h2>
-        <p>€{{ result.gross_profit | number:'1.2-2' }}</p>
+      <div class="stat">
+        <span class="label">Gross Profit</span>
+        <span class="value">€{{ result.gross_profit | number:'1.2-2' }}</span>
       </div>
 
-      <div>
-        <h2>Net Profit</h2>
-        <p>€{{ result.net_profit | number:'1.2-2' }}</p>
+      <div class="stat">
+        <span class="label">Net Profit</span>
+        <span class="value"
+          [class.positive]="result.net_profit >= 0"
+          [class.negative]="result.net_profit < 0">
+          €{{ result.net_profit | number:'1.2-2' }}
+        </span>
       </div>
 
-      <div>
-        <h2>Profit Margin</h2>
-        <p>{{ result.profit_margin | number:'1.2-2' }}%</p>
+      <div class="stat">
+        <span class="label">Profit Margin</span>
+        <span class="value">{{ result.profit_margin | number:'1.2-2' }}%</span>
       </div>
 
-      <div>
-        <h2>ROAS</h2>
-        <p>{{ result.roas !== null ? (result.roas | number:'1.2-2') : '-' }}</p>
+      <div class="stat">
+        <span class="label">ROAS</span>
+        <span class="value">{{ result.roas !== null ? (result.roas | number:'1.2-2') : '-' }}</span>
       </div>
     </section>
 
-    <section>
-      <h2>Daily Inputs</h2>
+    <div class="details">
+      <section>
+        <h2>Daily Inputs</h2>
+        <p class="caption">What you entered for this day.</p>
 
-      <p>Orders: {{ result.orders }}</p>
-      <p>Ad Spend: €{{ result.ad_spend | number:'1.2-2' }}</p>
-    </section>
+        <dl class="rows">
+          <div>
+            <dt>Orders</dt>
+            <dd>{{ result.orders }}</dd>
+          </div>
+          <div>
+            <dt>Ad Spend</dt>
+            <dd>€{{ result.ad_spend | number:'1.2-2' }}</dd>
+          </div>
+        </dl>
+      </section>
 
-    <section>
-      <h2>Settings Used</h2>
+      <section>
+        <h2>Settings Used</h2>
+        <p class="caption">The settings that were active when this day was saved.</p>
 
-      <p>Revenue per order: €{{ result.revenue_per_order | number:'1.2-2' }}</p>
-      <p>COGS: €{{ result.cogs | number:'1.2-2' }}</p>
-      <p>Fees: {{ result.fees_percentage }}%</p>
-      <p>Commissions: {{ result.commissions_percentage }}%</p>
-      <p>VAT: {{ result.vat_percentage }}%</p>
-      <p>Shipping: €{{ result.shipping | number:'1.2-2' }}</p>
-    </section>
+        <dl class="rows">
+          <div>
+            <dt>Revenue per order</dt>
+            <dd>€{{ result.revenue_per_order | number:'1.2-2' }}</dd>
+          </div>
+          <div>
+            <dt>COGS</dt>
+            <dd>€{{ result.cogs | number:'1.2-2' }}</dd>
+          </div>
+          <div>
+            <dt>Fees</dt>
+            <dd>{{ result.fees_percentage }}%</dd>
+          </div>
+          <div>
+            <dt>Commissions</dt>
+            <dd>{{ result.commissions_percentage }}%</dd>
+          </div>
+          <div>
+            <dt>VAT</dt>
+            <dd>{{ result.vat_percentage }}%</dd>
+          </div>
+          <div>
+            <dt>Shipping</dt>
+            <dd>€{{ result.shipping | number:'1.2-2' }}</dd>
+          </div>
+        </dl>
+      </section>
+    </div>
+
+    <div class="next">
+      <a class="btn btn--secondary" routerLink="/dashboard">Back to calendar</a>
+      <a class="btn btn--secondary" routerLink="/calculator">Open calculator</a>
+    </div>
   }
-</main>
+</div>

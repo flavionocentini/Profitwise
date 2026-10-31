@@ -1,0 +1,78 @@
+.hero {
+  padding: 48px 0 56px;
+}
+
+.intro {
+  max-width: 52ch;
+  margin: 12px 0 32px;
+  color: var(--text-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.steps li {
+  position: relative;
+  padding: 0 0 20px 32px;
+  counter-increment: step;
+}
+
+.steps li:last-child {
+  padding-bottom: 0;
+}
+
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.steps h3 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.steps p {
+  margin-top: 2px;
+  color: var(--text-muted);
+}
+
+.glossary > div {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.glossary > div:last-child {
+  border-bottom: none;
+}
+
+.glossary dt {
+  font-weight: 500;
+}
+
+.glossary dd {
+  color: var(--text-muted);
+}
+
+@media (max-width: 480px) {
+  .glossary > div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
