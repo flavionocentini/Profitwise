@@ -22,6 +22,12 @@ export type SavedDailyResult = DailyResult & {
   roas: number | null;
 };
 
+export type CalendarResult = {
+  date: string;
+  net_profit: number;
+  profit_margin: number;
+};
+
 @Service()
 export class DailyResultsService {
   private readonly http = inject(HttpClient);
@@ -33,6 +39,10 @@ export class DailyResultsService {
 
   getDailyResult(date: string): Observable<SavedDailyResult> {
     return this.http.get<SavedDailyResult>(`${this.apiUrl}/${date}`);
+  }
+
+  getCalendarResults(): Observable<CalendarResult[]> {
+    return this.http.get<CalendarResult[]>(this.apiUrl);
   }
 
 }

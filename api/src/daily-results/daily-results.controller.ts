@@ -16,4 +16,9 @@ export class DailyResultsController {
     return this.dailyResultsService.getDailyResult(date);
   }
 
+  @Get()
+    getCalendarResults() {
+    return this.dailyResultsService.getCalendarResults();
+  }
+
 }

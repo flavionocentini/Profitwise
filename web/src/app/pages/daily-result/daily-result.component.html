@@ -1,0 +1,59 @@
+<main>
+  <a routerLink="/">← Back to calendar</a>
+
+  @if (loading) {
+    <p>Loading daily results...</p>
+  } @else if (errorMessage) {
+    <p>{{ errorMessage }}</p>
+  } @else if (result) {
+    <header>
+      <h1>Daily Results</h1>
+      <p>{{ result.date }}</p>
+    </header>
+
+    <section class="summary">
+      <div>
+        <h2>Revenue</h2>
+        <p>€{{ result.revenue | number:'1.2-2' }}</p>
+      </div>
+
+      <div>
+        <h2>Gross Profit</h2>
+        <p>€{{ result.gross_profit | number:'1.2-2' }}</p>
+      </div>
+
+      <div>
+        <h2>Net Profit</h2>
+        <p>€{{ result.net_profit | number:'1.2-2' }}</p>
+      </div>
+
+      <div>
+        <h2>Profit Margin</h2>
+        <p>{{ result.profit_margin | number:'1.2-2' }}%</p>
+      </div>
+
+      <div>
+        <h2>ROAS</h2>
+        <p>{{ result.roas !== null ? (result.roas | number:'1.2-2') : '-' }}</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Daily Inputs</h2>
+
+      <p>Orders: {{ result.orders }}</p>
+      <p>Ad Spend: €{{ result.ad_spend | number:'1.2-2' }}</p>
+    </section>
+
+    <section>
+      <h2>Settings Used</h2>
+
+      <p>Revenue per order: €{{ result.revenue_per_order | number:'1.2-2' }}</p>
+      <p>COGS: €{{ result.cogs | number:'1.2-2' }}</p>
+      <p>Fees: {{ result.fees_percentage }}%</p>
+      <p>Commissions: {{ result.commissions_percentage }}%</p>
+      <p>VAT: {{ result.vat_percentage }}%</p>
+      <p>Shipping: €{{ result.shipping | number:'1.2-2' }}</p>
+    </section>
+  }
+</main>

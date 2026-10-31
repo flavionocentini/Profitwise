@@ -1,0 +1,32 @@
+.header {
+    background-color: aqua;
+    text-align: center;
+}
+
+.calc {
+    background-color: lightgray;
+}
+
+.settings {
+    background-color: gray;
+}
+
+.daily {
+    background-color: lightblue;
+}
+
+.output {
+    background-color: lightgreen;
+}
+
+.save {
+    background-color: lightyellow;
+}
+
+.success {
+    background-color: greenyellow;
+}
+
+.error {
+    background-color: red;
+}

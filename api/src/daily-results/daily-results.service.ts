@@ -73,4 +73,15 @@ export class DailyResultsService {
     return data;
   }
 
+  // Get calendar
+  async getCalendarResults() {
+    const { data, error } = await this.supabaseService.client.from('daily_results').select('date, net_profit, profit_margin').order('date', { ascending: true });
+
+    if (error) {
+        throw new InternalServerErrorException('Failed to fetch calendar results');
+    }
+
+    return data;
+  }
+
 }

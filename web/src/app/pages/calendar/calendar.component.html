@@ -1,0 +1,63 @@
+<main>
+  <header>
+    <h1>Profitwise</h1>
+    <p>Your daily profit overview</p>
+  </header>
+
+  <section class="calendar">
+    <div class="calendar-header">
+      <button (click)="previousMonth()">Previous</button>
+
+      <h2>{{ monthLabel }}</h2>
+
+      <button (click)="nextMonth()">Next</button>
+    </div>
+
+    @if (loading) {
+      <p>Loading calendar...</p>
+    } @else if (errorMessage) {
+      <p>{{ errorMessage }}</p>
+    } @else {
+      <div class="calendar-grid">
+        @for (day of ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; track day) {
+          <div class="weekday">
+            {{ day }}
+          </div>
+        }
+
+        @for (day of calendarDays; track $index) {
+          @if (day) {
+            @if (getResult(day); as result) {
+              <a
+                class="calendar-day saved"
+                [routerLink]="['/daily-results', formatDate(day)]"
+              >
+                <span class="day-number">{{ day.getDate() }}</span>
+
+                <span class="net-profit"
+                  [class.positive]="result.net_profit >= 0"
+                  [class.negative]="result.net_profit < 0">
+                  {{ result.net_profit | number:'1.2-2' }}
+                </span>
+
+                <span class="profit-margin">
+                  {{ result.profit_margin | number:'1.2-2' }}%
+                </span>
+              </a>
+            } @else {
+              <div class="calendar-day">
+                <span class="day-number">{{ day.getDate() }}</span>
+              </div>
+            }
+          } @else {
+            <div class="calendar-day empty"></div>
+          }
+        }
+      </div>
+    }
+  </section>
+
+  <footer>
+    <a routerLink="/calculator">Open calculator</a>
+  </footer>
+</main>
