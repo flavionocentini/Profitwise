@@ -18,23 +18,35 @@
     <div class="output">
       <div>
         <h3>Revenue</h3>
-        <p>{{ revenue }}</p>
+        <p>{{ revenue | number:'1.2-2' }}</p>
       </div>
       <div>
-        <h3>Profit</h3>
-        <p>{{ profit }}</p>
+        <h3>Gross Profit</h3>
+        <p>{{ grossProfit | number:'1.2-2' }}</p>
       </div>
       <div>
-        <h3>Profit Margin</h3>
-        <p>{{ profitMargin }}%</p>
+        <h3>Net Profit</h3>
+        <p>{{ netProfit | number:'1.2-2' }}</p>
+      </div>
+      <div>
+        <h3>Net Profit Margin</h3>
+        <p>{{ profitMargin | number:'1.0-0' }}%</p>
+      </div>
+      <div>
+        <h3>ROAS</h3>
+        <p>{{ roas !== null ? (roas | number:'1.2-2') : '-' }}</p>
       </div>
     </div>
     <div class="save">
       <div>
         <h3>Select the date you want to save the data for:</h3>
+        <input type="date" [(ngModel)]="selectedDate"/>
       </div>
       <div>
-        <button>Save</button>
+        <button (click)="saveDailyResult()" [disabled]="!selectedDate">Save</button>
+      </div>
+      <div [class.success]="saved" [class.error]="!saved && saveMessage">
+        <p>{{ saveMessage }}</p>
       </div>
     </div>
   </div>
